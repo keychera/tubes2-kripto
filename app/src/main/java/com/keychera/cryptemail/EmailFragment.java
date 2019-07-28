@@ -39,7 +39,7 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
   private int mColumnCount = 1;
   private onEmailListFragmentInteraction mListener;
 
-  private List<Email> emails;
+  private List<SimpleEmail> emails;
   private EmailListRecyclerViewAdapter emailListRecyclerViewAdapter;
   private SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -147,11 +147,11 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
 
   public interface onEmailListFragmentInteraction {
 
-    void onEmailItemFragmentInteraction(Email item);
+    void onEmailItemFragmentInteraction(SimpleEmail item);
   }
 
   @SuppressLint("StaticFieldLeak")
-  private class FetchEmailTask extends AsyncTask<Void, Email, Void> {
+  private class FetchEmailTask extends AsyncTask<Void, SimpleEmail, Void> {
 
     @Override
     protected Void doInBackground(Void... voids) {
@@ -180,7 +180,7 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
       }
 
       for ( Message message: messages) {
-        Email email = new Email();
+        SimpleEmail email = new SimpleEmail();
         try {
           email.subject = message.getSubject();
           publishProgress(email);
@@ -199,9 +199,9 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
     }
 
     @Override
-    protected void onProgressUpdate(Email... comingEmails) {
+    protected void onProgressUpdate(SimpleEmail... comingEmails) {
       super.onProgressUpdate(comingEmails);
-      for (Email email:comingEmails) {
+      for (SimpleEmail email:comingEmails) {
         emails.add(0,email);
       }
       emailListRecyclerViewAdapter.notifyItemInserted(0);

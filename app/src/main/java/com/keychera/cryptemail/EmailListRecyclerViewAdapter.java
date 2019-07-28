@@ -11,17 +11,17 @@ import com.keychera.cryptemail.EmailFragment.onEmailListFragmentInteraction;
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link Email} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link SimpleEmail} and makes a call to the
  * specified {@link onEmailListFragmentInteraction}.
  * for your data type.
  */
 public class EmailListRecyclerViewAdapter extends
     RecyclerView.Adapter<EmailListRecyclerViewAdapter.ViewHolder> {
 
-  private final List<Email> mValues;
+  private final List<SimpleEmail> mValues;
   private final onEmailListFragmentInteraction mListener;
 
-  public EmailListRecyclerViewAdapter(List<Email> items,
+  public EmailListRecyclerViewAdapter(List<SimpleEmail> items,
       onEmailListFragmentInteraction listener) {
     mValues = items;
     mListener = listener;
@@ -62,7 +62,7 @@ public class EmailListRecyclerViewAdapter extends
     public final View mView;
     public final TextView mIdView;
     public final TextView mContentView;
-    public Email mItem;
+    public SimpleEmail mItem;
 
     public ViewHolder(View view) {
       super(view);

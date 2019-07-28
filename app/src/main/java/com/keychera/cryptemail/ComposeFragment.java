@@ -2,6 +2,7 @@ package com.keychera.cryptemail;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -36,6 +37,7 @@ public class ComposeFragment extends Fragment {
   private OnComposeFragmentInteractionListener mListener;
   private EditText toAddressText, subjectText, messageText;
   private Fragment thisFragment;
+  private View thisView;
 
   public ComposeFragment() {
     // Required empty public constructor
@@ -75,20 +77,21 @@ public class ComposeFragment extends Fragment {
     thisFragment = this;
 
     // Inflate the layout for this fragment
-    View view = inflater.inflate(R.layout.fragment_compose, container, false);
-    toAddressText = view.findViewById(R.id.to_address_text);
-    subjectText = view.findViewById(R.id.subject_text);
-    messageText = view.findViewById(R.id.message_text);
+    thisView = inflater.inflate(R.layout.fragment_compose, container, false);
+    toAddressText = thisView.findViewById(R.id.to_address_text);
+    subjectText = thisView.findViewById(R.id.subject_text);
+    messageText = thisView.findViewById(R.id.message_text);
 
     //set FAB
-    FloatingActionButton fab = view.findViewById(R.id.send_fab);
+    FloatingActionButton fab = thisView.findViewById(R.id.send_fab);
     fab.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View view) {
-        Email email =  getEmailContent();
+        SimpleEmail email =  getEmailContent();
         if (email.isValid()) {
+          Snackbar.make(view, "SENDING", Snackbar.LENGTH_INDEFINITE)
+              .setAction("Action", null).show();
           new SendEmailTask().execute(email);
-          NavHostFragment.findNavController(thisFragment).popBackStack();
         } else {
           Snackbar.make(view, "Invalid Input", Snackbar.LENGTH_LONG)
               .setAction("Action", null).show();
@@ -96,7 +99,7 @@ public class ComposeFragment extends Fragment {
       }
     });
 
-    return view;
+    return thisView;
   }
 
 
@@ -122,8 +125,8 @@ public class ComposeFragment extends Fragment {
     void onFragmentInteraction(Uri uri);
   }
 
-  public Email getEmailContent() {
-    Email email = new Email();
+  public SimpleEmail getEmailContent() {
+    SimpleEmail email = new SimpleEmail();
     email.toAddress = toAddressText.getText().toString();
     email.subject = subjectText.getText().toString();
     email.message = messageText.getText().toString();
@@ -131,14 +134,38 @@ public class ComposeFragment extends Fragment {
   }
 
   @SuppressLint("StaticFieldLeak")
-  private class SendEmailTask extends AsyncTask<Email, Void, Void> {
+  private class SendEmailTask extends AsyncTask<SimpleEmail, Void, Boolean> {
 
     @Override
-    protected Void doInBackground(Email... emails) {
-      for ( Email email: emails) {
-        System.out.println("Sending the email: " + email.subject);
+    protected Boolean doInBackground(SimpleEmail... emails) {
+      try {
+        for (SimpleEmail email : emails) {
+          EmailUtil.sendEmail(email);
+        }
+        return true;
+      } catch (Exception e) {
+        e.printStackTrace();
+        return false;
       }
-      return null;
+    }
+
+    @Override
+    protected void onPostExecute(Boolean successful) {
+      super.onPostExecute(successful);
+      if (successful) {
+        NavHostFragment.findNavController(thisFragment).popBackStack();
+      }
+      createEmailStatusSnackBar(successful);
+    }
+  }
+
+  private void createEmailStatusSnackBar(boolean status) {
+    if (status) {
+      Snackbar.make((View) thisView.getParent(), "SimpleEmail Sent!", Snackbar.LENGTH_LONG)
+          .setAction("Action", null).show();
+    } else {
+      Snackbar.make(thisView, "SENT FAILED!", Snackbar.LENGTH_LONG)
+          .setAction("Action", null).show();
     }
   }
 }

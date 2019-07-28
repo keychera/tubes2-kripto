@@ -1,20 +1,11 @@
 package com.keychera.cryptemail;
 
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.widget.EditText;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
-import androidx.navigation.NavController.OnDestinationChangedListener;
-import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import android.view.View;
 import androidx.core.view.GravityCompat;
 import android.view.MenuItem;
 import com.google.android.material.navigation.NavigationView;
@@ -110,7 +101,7 @@ public class MainActivity extends AppCompatActivity
   }
 
   @Override
-  public void onEmailItemFragmentInteraction(Email item) {
+  public void onEmailItemFragmentInteraction(SimpleEmail item) {
 
   }
 

@@ -181,6 +181,7 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
     protected void onPreExecute() {
       super.onPreExecute();
       emails.clear();
+      emailListRecyclerViewAdapter.notifyDataSetChanged();
     }
 
     @Override

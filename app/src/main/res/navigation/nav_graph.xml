@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/nav_graph"
+  app:startDestination="@id/helloFragment">
+
+  <fragment
+    android:id="@+id/composeFragment"
+    android:label="fragment_compose"
+    android:name="com.keychera.cryptemail.ComposeFragment"
+    tools:layout="@layout/fragment_compose"/>
+  <fragment
+    android:id="@+id/emailFragment"
+    android:label="fragment_email_list"
+    android:name="com.keychera.cryptemail.EmailFragment"
+    tools:layout="@layout/fragment_email_list">
+    <action
+      android:id="@+id/action_emailFragment_to_composeFragment"
+      app:destination="@id/composeFragment"/>
+  </fragment>
+  <fragment
+    android:id="@+id/helloFragment"
+    android:name="com.keychera.cryptemail.HelloFragment"
+    android:label="fragment_hello"
+    tools:layout="@layout/fragment_hello">
+    <action
+      android:id="@+id/action_helloFragment_to_emailFragment"
+      app:destination="@id/emailFragment"/>
+    <action
+      android:id="@+id/action_helloFragment_to_composeFragment"
+      app:destination="@id/composeFragment"/>
+  </fragment>
+</navigation>

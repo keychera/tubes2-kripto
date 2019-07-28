@@ -11,10 +11,10 @@ import android.view.ViewGroup;
 
 /**
  * A simple {@link Fragment} subclass. Activities that contain this fragment must implement the
- * {@link OnComposeFragmentInteractionListener} interface to handle interaction events. Use
- * the {@link ComposeFragment#newInstance} factory method to create an instance of this fragment.
+ * {@link HelloFragment.OnFragmentInteractionListener} interface to handle interaction events. Use
+ * the {@link HelloFragment#newInstance} factory method to create an instance of this fragment.
  */
-public class ComposeFragment extends Fragment {
+public class HelloFragment extends Fragment {
 
   // TODO: Rename parameter arguments, choose names that match
   // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -25,9 +25,9 @@ public class ComposeFragment extends Fragment {
   private String mParam1;
   private String mParam2;
 
-  private OnComposeFragmentInteractionListener mListener;
+  private OnFragmentInteractionListener mListener;
 
-  public ComposeFragment() {
+  public HelloFragment() {
     // Required empty public constructor
   }
 
@@ -37,11 +37,11 @@ public class ComposeFragment extends Fragment {
    *
    * @param param1 Parameter 1.
    * @param param2 Parameter 2.
-   * @return A new instance of fragment ComposeFragment.
+   * @return A new instance of fragment HelloFragment.
    */
   // TODO: Rename and change types and number of parameters
-  public static ComposeFragment newInstance(String param1, String param2) {
-    ComposeFragment fragment = new ComposeFragment();
+  public static HelloFragment newInstance(String param1, String param2) {
+    HelloFragment fragment = new HelloFragment();
     Bundle args = new Bundle();
     args.putString(ARG_PARAM1, param1);
     args.putString(ARG_PARAM2, param2);
@@ -62,7 +62,7 @@ public class ComposeFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     // Inflate the layout for this fragment
-    return inflater.inflate(R.layout.fragment_compose, container, false);
+    return inflater.inflate(R.layout.fragment_hello, container, false);
   }
 
   // TODO: Rename method, update argument and hook method into UI event
@@ -75,11 +75,11 @@ public class ComposeFragment extends Fragment {
   @Override
   public void onAttach(Context context) {
     super.onAttach(context);
-    if (context instanceof OnComposeFragmentInteractionListener) {
-      mListener = (OnComposeFragmentInteractionListener) context;
+    if (context instanceof OnFragmentInteractionListener) {
+      mListener = (OnFragmentInteractionListener) context;
     } else {
       throw new RuntimeException(context.toString()
-          + " must implement OnComposeFragmentInteractionListener");
+          + " must implement OnFragmentInteractionListener");
     }
   }
 
@@ -97,8 +97,9 @@ public class ComposeFragment extends Fragment {
    * See the Android Training lesson <a href= "http://developer.android.com/training/basics/fragments/communicating.html"
    * >Communicating with Other Fragments</a> for more information.
    */
-  public interface OnComposeFragmentInteractionListener {
+  public interface OnFragmentInteractionListener {
 
+    // TODO: Update argument type and name
     void onFragmentInteraction(Uri uri);
   }
 }

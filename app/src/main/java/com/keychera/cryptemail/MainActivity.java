@@ -1,11 +1,14 @@
 package com.keychera.cryptemail;
 
+import android.net.Uri;
 import android.os.Bundle;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import android.view.View;
 import androidx.core.view.GravityCompat;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import android.view.MenuItem;
 import com.google.android.material.navigation.NavigationView;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -13,32 +16,51 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
+import com.keychera.cryptemail.ComposeFragment.OnComposeFragmentInteractionListener;
 import com.keychera.cryptemail.EmailFragment.onEmailListFragmentInteraction;
+import com.keychera.cryptemail.HelloFragment.OnFragmentInteractionListener;
 
 public class MainActivity extends AppCompatActivity
-    implements NavigationView.OnNavigationItemSelectedListener, onEmailListFragmentInteraction {
+    implements NavigationView.OnNavigationItemSelectedListener, onEmailListFragmentInteraction,
+    OnComposeFragmentInteractionListener, OnFragmentInteractionListener {
+
+  private View.OnClickListener ComposeOnClick;
+  private NavController navController;
+  private AppBarConfiguration appBarConfiguration;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
     setContentView(R.layout.activity_main);
-    Toolbar toolbar = findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
-    FloatingActionButton fab = findViewById(R.id.fab);
-    fab.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-            .setAction("Action", null).show();
-      }
-    });
     DrawerLayout drawer = findViewById(R.id.drawer_layout);
     NavigationView navigationView = findViewById(R.id.nav_view);
-    ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-        this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-    drawer.addDrawerListener(toggle);
-    toggle.syncState();
+
+    navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+    appBarConfiguration = new AppBarConfiguration.Builder(R.id.helloFragment, R.id.emailFragment)
+            .setDrawerLayout(drawer)
+            .build();
+
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+    NavigationUI.setupActionBarWithNavController(this, this.navController, this.appBarConfiguration);
+
+    NavigationUI.setupWithNavController(navigationView, navController);
     navigationView.setNavigationItemSelectedListener(this);
+
+    ComposeOnClick = new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        navController.navigate(R.id.composeFragment);
+      }
+    };
+    FloatingActionButton fab = findViewById(R.id.fab);
+    fab.setOnClickListener(ComposeOnClick);
+  }
+
+  @Override
+  public boolean onSupportNavigateUp() {
+    return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
   }
 
   @Override
@@ -80,16 +102,14 @@ public class MainActivity extends AppCompatActivity
     int id = item.getItemId();
 
     if (id == R.id.nav_home) {
-      // Handle the camera action
-    } else if (id == R.id.nav_gallery) {
+      navController.navigate(R.id.helloFragment);
+    } else if (id == R.id.nav_inbox) {
+      navController.navigate(R.id.emailFragment);
+    } else if (id == R.id.nav_sent) {
+      navController.navigate(R.id.emailFragment);
+    } else if (id == R.id.nav_drafts) {
 
-    } else if (id == R.id.nav_slideshow) {
-
-    } else if (id == R.id.nav_tools) {
-
-    } else if (id == R.id.nav_share) {
-
-    } else if (id == R.id.nav_send) {
+    }  else if (id == R.id.nav_settings) {
 
     }
 
@@ -100,6 +120,11 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   public void onEmailItemFragmentInteraction(Email item) {
+
+  }
+
+  @Override
+  public void onFragmentInteraction(Uri uri) {
 
   }
 }

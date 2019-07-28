@@ -5,13 +5,17 @@ import java.util.Date;
 import java.util.List;
 
 public class Email {
-  public List<String> fromAddress;
-  public List<String> toAddress;
+  public String fromAddress;
+  public String toAddress;
   public String subject;
   public Date sentDate;
+  public String message;
 
   public Email() {
-    fromAddress = new ArrayList<>();
-    toAddress = new ArrayList<>();
+
+  }
+
+  public boolean isValid() {
+    return !subject.isEmpty() && !message.isEmpty() && !toAddress.isEmpty();
   }
 }

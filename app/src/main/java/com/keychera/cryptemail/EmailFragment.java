@@ -6,14 +6,17 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -32,6 +35,7 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
   // TODO: Customize parameter argument names
   private static final String ARG_COLUMN_COUNT = "column-count";
   // TODO: Customize parameters
+  private Fragment thisFragment;
   private int mColumnCount = 1;
   private onEmailListFragmentInteraction mListener;
 
@@ -64,6 +68,7 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
       mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
     }
 
+    thisFragment = this;
     emails = new ArrayList<>();
   }
 
@@ -99,6 +104,15 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
     }
     emailListRecyclerViewAdapter = new EmailListRecyclerViewAdapter(emails, mListener);
     recyclerView.setAdapter(emailListRecyclerViewAdapter);
+
+    //set FAB
+    FloatingActionButton fab = view.findViewById(R.id.compose_fab);
+    fab.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        NavHostFragment.findNavController(thisFragment).navigate(R.id.composeFragment);
+      }
+    });
 
     return view;
   }

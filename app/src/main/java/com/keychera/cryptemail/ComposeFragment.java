@@ -1,12 +1,20 @@
 package com.keychera.cryptemail;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View.OnClickListener;
+import android.widget.EditText;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.navigation.fragment.NavHostFragment;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 
 /**
@@ -26,6 +34,8 @@ public class ComposeFragment extends Fragment {
   private String mParam2;
 
   private OnComposeFragmentInteractionListener mListener;
+  private EditText toAddressText, subjectText, messageText;
+  private Fragment thisFragment;
 
   public ComposeFragment() {
     // Required empty public constructor
@@ -59,18 +69,36 @@ public class ComposeFragment extends Fragment {
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
+
+    thisFragment = this;
+
     // Inflate the layout for this fragment
-    return inflater.inflate(R.layout.fragment_compose, container, false);
+    View view = inflater.inflate(R.layout.fragment_compose, container, false);
+    toAddressText = view.findViewById(R.id.to_address_text);
+    subjectText = view.findViewById(R.id.subject_text);
+    messageText = view.findViewById(R.id.message_text);
+
+    //set FAB
+    FloatingActionButton fab = view.findViewById(R.id.send_fab);
+    fab.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        Email email =  getEmailContent();
+        if (email.isValid()) {
+          new SendEmailTask().execute(email);
+          NavHostFragment.findNavController(thisFragment).popBackStack();
+        } else {
+          Snackbar.make(view, "Invalid Input", Snackbar.LENGTH_LONG)
+              .setAction("Action", null).show();
+        }
+      }
+    });
+
+    return view;
   }
 
-  // TODO: Rename method, update argument and hook method into UI event
-  public void onButtonPressed(Uri uri) {
-    if (mListener != null) {
-      mListener.onFragmentInteraction(uri);
-    }
-  }
 
   @Override
   public void onAttach(Context context) {
@@ -89,16 +117,29 @@ public class ComposeFragment extends Fragment {
     mListener = null;
   }
 
-  /**
-   * This interface must be implemented by activities that contain this fragment to allow an
-   * interaction in this fragment to be communicated to the activity and potentially other fragments
-   * contained in that activity.
-   * <p>
-   * See the Android Training lesson <a href= "http://developer.android.com/training/basics/fragments/communicating.html"
-   * >Communicating with Other Fragments</a> for more information.
-   */
   public interface OnComposeFragmentInteractionListener {
 
     void onFragmentInteraction(Uri uri);
   }
+
+  public Email getEmailContent() {
+    Email email = new Email();
+    email.toAddress = toAddressText.getText().toString();
+    email.subject = subjectText.getText().toString();
+    email.message = messageText.getText().toString();
+    return email;
+  }
+
+  @SuppressLint("StaticFieldLeak")
+  private class SendEmailTask extends AsyncTask<Email, Void, Void> {
+
+    @Override
+    protected Void doInBackground(Email... emails) {
+      for ( Email email: emails) {
+        System.out.println("Sending the email: " + email.subject);
+      }
+      return null;
+    }
+  }
 }
+

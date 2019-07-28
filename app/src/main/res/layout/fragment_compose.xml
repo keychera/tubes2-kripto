@@ -1,44 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:orientation="vertical"
   tools:context=".ComposeFragment">
 
-  <EditText
-    android:id="@+id/toAddressText"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/text_box_margin"
-    android:layout_marginLeft="@dimen/text_box_margin"
-    android:layout_marginRight="@dimen/text_box_margin"
-    android:autofillHints=""
-    android:ems="10"
-    android:hint="@string/to_hint_text"
-    android:inputType="textEmailAddress"/>
-  <EditText
-    android:id="@+id/subjectText"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/text_box_margin"
-    android:layout_marginLeft="@dimen/text_box_margin"
-    android:layout_marginRight="@dimen/text_box_margin"
-    android:autofillHints=""
-    android:ems="10"
-    android:hint="@string/subject_hint_text"
-    android:inputType="textEmailSubject"/>
-  <EditText
-    android:id="@+id/messageText"
+  <LinearLayout
+    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="@dimen/text_box_margin"
-    android:autofillHints=""
-    android:ems="10"
-    android:gravity="start|top"
-    android:hint="@string/message_hint_text"
-    android:inputType="none|textMultiLine"
-    android:selectAllOnFocus="false"
-    android:singleLine="false"/>
+    android:orientation="vertical">
+    <EditText
+      android:id="@+id/to_address_text"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/text_box_margin"
+      android:layout_marginLeft="@dimen/text_box_margin"
+      android:layout_marginRight="@dimen/text_box_margin"
+      android:autofillHints=""
+      android:ems="10"
+      android:hint="@string/to_hint_text"
+      android:inputType="textEmailAddress"/>
+    <EditText
+      android:id="@+id/subject_text"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/text_box_margin"
+      android:layout_marginLeft="@dimen/text_box_margin"
+      android:layout_marginRight="@dimen/text_box_margin"
+      android:autofillHints=""
+      android:ems="10"
+      android:hint="@string/subject_hint_text"
+      android:inputType="textEmailSubject"/>
+    <EditText
+      android:id="@+id/message_text"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_margin="@dimen/text_box_margin"
+      android:autofillHints=""
+      android:ems="10"
+      android:gravity="start|top"
+      android:hint="@string/message_hint_text"
+      android:inputType="none|textMultiLine"
+      android:selectAllOnFocus="false"
+      android:singleLine="false"/>
+  </LinearLayout>
+  <com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/send_fab"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/fab_margin"
+    android:layout_gravity="bottom|end"
+    app:srcCompat="@android:drawable/ic_menu_send"/>
 
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,19 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+<FrameLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/swipe_container"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent">
-  <androidx.recyclerview.widget.RecyclerView
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/email_list"
+  <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    android:id="@+id/swipe_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    android:name="com.keychera.cryptemail.EmailFragment"
-    app:layoutManager="LinearLayoutManager"
-    tools:context=".EmailFragment"
-    tools:listitem="@layout/fragment_email"/>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    android:layout_height="match_parent">
+
+
+    <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/email_list"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_marginLeft="16dp"
+      android:layout_marginRight="16dp"
+      android:name="com.keychera.cryptemail.EmailFragment"
+      app:layoutManager="LinearLayoutManager"
+      tools:context=".EmailFragment"
+      tools:listitem="@layout/fragment_email">
+    </androidx.recyclerview.widget.RecyclerView>
+  </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+  <com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/compose_fab"
+    app:srcCompat="@android:drawable/ic_dialog_email"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/fab_margin"
+    android:layout_gravity="bottom|end"/>
+</FrameLayout>

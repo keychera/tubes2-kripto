@@ -1,8 +1,15 @@
 package com.keychera.cryptemail;
 
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.EditText;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
+import androidx.navigation.NavController.OnDestinationChangedListener;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -16,15 +23,16 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
+import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.keychera.cryptemail.ComposeFragment.OnComposeFragmentInteractionListener;
 import com.keychera.cryptemail.EmailFragment.onEmailListFragmentInteraction;
 import com.keychera.cryptemail.HelloFragment.OnFragmentInteractionListener;
 
 public class MainActivity extends AppCompatActivity
-    implements NavigationView.OnNavigationItemSelectedListener, onEmailListFragmentInteraction,
-    OnComposeFragmentInteractionListener, OnFragmentInteractionListener {
+    implements OnNavigationItemSelectedListener, onEmailListFragmentInteraction,
+    OnComposeFragmentInteractionListener, OnFragmentInteractionListener{
 
-  private View.OnClickListener ComposeOnClick;
   private NavController navController;
   private AppBarConfiguration appBarConfiguration;
 
@@ -47,15 +55,6 @@ public class MainActivity extends AppCompatActivity
 
     NavigationUI.setupWithNavController(navigationView, navController);
     navigationView.setNavigationItemSelectedListener(this);
-
-    ComposeOnClick = new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        navController.navigate(R.id.composeFragment);
-      }
-    };
-    FloatingActionButton fab = findViewById(R.id.fab);
-    fab.setOnClickListener(ComposeOnClick);
   }
 
   @Override
@@ -75,30 +74,21 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.main, menu);
     return true;
   }
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
-    // Handle action bar item clicks here. The action bar will
-    // automatically handle clicks on the Home/Up button, so long
-    // as you specify a parent activity in AndroidManifest.xml.
     int id = item.getItemId();
-
-    //noinspection SimplifiableIfStatement
     if (id == R.id.action_settings) {
       return true;
     }
-
     return super.onOptionsItemSelected(item);
   }
 
-  @SuppressWarnings("StatementWithEmptyBody")
   @Override
   public boolean onNavigationItemSelected(MenuItem item) {
-    // Handle navigation view item clicks here.
     int id = item.getItemId();
 
     if (id == R.id.nav_home) {
@@ -108,9 +98,10 @@ public class MainActivity extends AppCompatActivity
     } else if (id == R.id.nav_sent) {
       navController.navigate(R.id.emailFragment);
     } else if (id == R.id.nav_drafts) {
-
+      navController.navigate(R.id.emailFragment);
     }  else if (id == R.id.nav_settings) {
-
+      Snackbar.make(findViewById(android.R.id.content), "Not Yet Implemented", Snackbar.LENGTH_LONG)
+          .setAction("Action", null).show();
     }
 
     DrawerLayout drawer = findViewById(R.id.drawer_layout);

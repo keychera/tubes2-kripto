@@ -85,11 +85,13 @@ public class MainActivity extends AppCompatActivity
     if (id == R.id.nav_home) {
       navController.navigate(R.id.helloFragment);
     } else if (id == R.id.nav_inbox) {
-      navController.navigate(R.id.emailFragment);
+      Bundle args = new Bundle();
+      args.putString(EmailFragment.ARG_EMAIL_FOLDER_NAME, "INBOX");
+      navController.navigate(R.id.emailFragment, args);
     } else if (id == R.id.nav_sent) {
-      navController.navigate(R.id.emailFragment);
+
     } else if (id == R.id.nav_drafts) {
-      navController.navigate(R.id.emailFragment);
+
     }  else if (id == R.id.nav_settings) {
       Snackbar.make(findViewById(android.R.id.content), "Not Yet Implemented", Snackbar.LENGTH_LONG)
           .setAction("Action", null).show();

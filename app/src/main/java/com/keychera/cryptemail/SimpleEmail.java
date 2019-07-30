@@ -10,6 +10,7 @@ public class SimpleEmail {
   public String toAddress;
   public String subject;
   public Date sentDate;
+  public Date receivedDate;
   public String message;
 
   SimpleEmail() {}

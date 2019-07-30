@@ -32,16 +32,14 @@ import javax.mail.Store;
  */
 public class EmailFragment extends Fragment implements OnRefreshListener {
 
-  // TODO: Customize parameter argument names
-  private static final String ARG_COLUMN_COUNT = "column-count";
-  // TODO: Customize parameters
+  public static final String ARG_EMAIL_FOLDER_NAME = "email-folder-name";
   private Fragment thisFragment;
-  private int mColumnCount = 1;
   private onEmailListFragmentInteraction mListener;
 
   private List<SimpleEmail> emails;
   private EmailListRecyclerViewAdapter emailListRecyclerViewAdapter;
   private SwipeRefreshLayout mSwipeRefreshLayout;
+  private String EmailFolderName;
 
   /**
    * Mandatory empty constructor for the fragment manager to instantiate the fragment (e.g. upon
@@ -52,10 +50,10 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
 
   // TODO: Customize parameter initialization
   @SuppressWarnings("unused")
-  public static EmailFragment newInstance(int columnCount) {
+  public static EmailFragment newInstance(String columnCount) {
     EmailFragment fragment = new EmailFragment();
     Bundle args = new Bundle();
-    args.putInt(ARG_COLUMN_COUNT, columnCount);
+    args.putString(ARG_EMAIL_FOLDER_NAME, columnCount);
     fragment.setArguments(args);
     return fragment;
   }
@@ -65,7 +63,7 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
     super.onCreate(savedInstanceState);
 
     if (getArguments() != null) {
-      mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+      EmailFolderName = getArguments().getString(ARG_EMAIL_FOLDER_NAME);
     }
 
     thisFragment = this;
@@ -97,11 +95,7 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
     // Set the adapter
     Context context = view.getContext();
     RecyclerView recyclerView = view.findViewById(R.id.email_list);
-    if (mColumnCount <= 1) {
-      recyclerView.setLayoutManager(new LinearLayoutManager(context));
-    } else {
-      recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-    }
+    recyclerView.setLayoutManager(new LinearLayoutManager(context));
     emailListRecyclerViewAdapter = new EmailListRecyclerViewAdapter(emails, mListener);
     recyclerView.setAdapter(emailListRecyclerViewAdapter);
 
@@ -171,7 +165,7 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
 
       Message[] messages;
       try {
-        Folder folder = store.getFolder("[Gmail]/Surat Terkirim");
+        Folder folder = store.getFolder(EmailFolderName);
         folder.open(Folder.READ_WRITE);
         messages = folder.getMessages();
       } catch (MessagingException e) {
@@ -183,6 +177,9 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
         SimpleEmail email = new SimpleEmail();
         try {
           email.subject = message.getSubject();
+          email.fromAddress = message.getFrom()[0].toString();
+          email.sentDate = message.getSentDate();
+          email.receivedDate = message.getReceivedDate();
           publishProgress(email);
         } catch (MessagingException e) {
           e.printStackTrace();

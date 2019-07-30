@@ -37,8 +37,8 @@ public class EmailListRecyclerViewAdapter extends
   @Override
   public void onBindViewHolder(final ViewHolder holder, int position) {
     holder.mItem = mValues.get(position);
-    holder.mIdView.setText("hey");
-    holder.mContentView.setText(mValues.get(position).subject);
+    holder.mFromView.setText(mValues.get(position).fromAddress);
+    holder.mSubjectView.setText(mValues.get(position).subject);
 
     holder.mView.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -60,20 +60,20 @@ public class EmailListRecyclerViewAdapter extends
   public class ViewHolder extends RecyclerView.ViewHolder {
 
     public final View mView;
-    public final TextView mIdView;
-    public final TextView mContentView;
+    public final TextView mFromView;
+    public final TextView mSubjectView;
     public SimpleEmail mItem;
 
     public ViewHolder(View view) {
       super(view);
       mView = view;
-      mIdView = (TextView) view.findViewById(R.id.item_number);
-      mContentView = (TextView) view.findViewById(R.id.content);
+      mFromView = (TextView) view.findViewById(R.id.from_email);
+      mSubjectView = (TextView) view.findViewById(R.id.email_subject);
     }
 
     @Override
     public String toString() {
-      return super.toString() + " '" + mContentView.getText() + "'";
+      return super.toString() + " '" + mSubjectView.getText() + "'";
     }
   }
 }

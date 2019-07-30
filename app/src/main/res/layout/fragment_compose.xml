@@ -34,6 +34,49 @@
       android:ems="10"
       android:hint="@string/subject_hint_text"
       android:inputType="textEmailSubject"/>
+    <TableLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+
+      <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <CheckBox
+          android:id="@+id/checkbox_sign"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/text_box_margin"
+          android:layout_marginStart="@dimen/text_margin"
+          android:layout_marginEnd="@dimen/text_margin"
+          android:text="@string/checkbox_sign"/>
+        <TextView
+          android:id="@+id/status_signature"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/text_box_margin"
+          android:layout_marginEnd="@dimen/text_margin"
+          android:hint="@string/hint_file_name"/>
+      </TableRow>
+      <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <CheckBox
+          android:id="@+id/checkbox_encrypt"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/text_box_margin"
+          android:layout_marginStart="@dimen/text_margin"
+          android:layout_marginEnd="@dimen/text_margin"
+          android:text="@string/checkbox_encrypt"/>
+        <TextView
+          android:id="@+id/status_encryption"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/text_box_margin"
+          android:layout_marginEnd="@dimen/text_margin"
+          android:hint="@string/hint_file_name"/>
+      </TableRow>
+    </TableLayout>
     <EditText
       android:id="@+id/message_text"
       android:layout_width="match_parent"

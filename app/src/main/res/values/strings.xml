@@ -12,10 +12,18 @@
   <string name="menu_drafts">Drafts</string>
   <string name="menu_setting">Setting</string>
 
-  <!-- TODO: Remove or change this placeholder text -->
   <string name="hello_blank_fragment">Hello blank fragment</string>
   <string name="to_hint_text">To</string>
   <string name="subject_hint_text">Subject</string>
   <string name="message_hint_text">Message</string>
   <string name="menu_home">Home</string>
+  <string name="checkbox_sign">Sign</string>
+  <string name="hint_file_name">file name</string>
+  <string name="checkbox_encrypt">Encrypt</string>
+  <string name="button_verify_signature">Verify Signature</string>
+  <string name="status_text">status text</string>
+  <string name="button_decrypt">Decrypt</string>
+  <string name="desc_email_icon">Email Icon</string>
+  <string name="test_string">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus tincidunt blandit rhoncus. In dui nibh, tristique a mollis quis, tempus in felis. Phasellus nisi velit, porttitor in mollis faucibus, lacinia quis est.</string>
+  <string name="test_email">lorem@ipsum.dolor, lorem@ipsum.dolor, lorem@ipsum.dolor, lorem@ipsum.dolor</string>
 </resources>

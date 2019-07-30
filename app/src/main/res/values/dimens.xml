@@ -7,4 +7,5 @@
   <dimen name="fab_margin">16dp</dimen>
   <dimen name="text_margin">16dp</dimen>
   <dimen name="text_box_margin">8dp</dimen>
+  <dimen name="email_icon_margin">32dp</dimen>
 </resources>

@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.keychera.cryptemail.EmailDetailFragment.DetailType;
 
 
 /**
@@ -36,8 +37,7 @@ public class ComposeFragment extends Fragment {
 
   private OnComposeFragmentInteractionListener mListener;
   private EditText toAddressText, subjectText, messageText;
-  private Fragment thisFragment;
-  private View thisView;
+  private ComposeFragment thisFragment;
 
   public ComposeFragment() {
     // Required empty public constructor
@@ -77,7 +77,7 @@ public class ComposeFragment extends Fragment {
     thisFragment = this;
 
     // Inflate the layout for this fragment
-    thisView = inflater.inflate(R.layout.fragment_compose, container, false);
+    View thisView = inflater.inflate(R.layout.fragment_compose, container, false);
     toAddressText = thisView.findViewById(R.id.to_address_text);
     subjectText = thisView.findViewById(R.id.subject_text);
     messageText = thisView.findViewById(R.id.message_text);
@@ -91,7 +91,10 @@ public class ComposeFragment extends Fragment {
         if (email.isValid()) {
           Snackbar.make(view, "SENDING", Snackbar.LENGTH_INDEFINITE)
               .setAction("Action", null).show();
-          new SendEmailTask().execute(email);
+          Bundle args = new Bundle();
+          args.putSerializable(EmailDetailFragment.ARG_SIMPLE_EMAIL, email);
+          args.putSerializable(EmailDetailFragment.ARG_DETAIL_TYPE, DetailType.READY_SEND);
+          NavHostFragment.findNavController(thisFragment).navigate(R.id.emailDetailFragment, args);
         } else {
           Snackbar.make(view, "Invalid Input", Snackbar.LENGTH_LONG)
               .setAction("Action", null).show();
@@ -127,46 +130,12 @@ public class ComposeFragment extends Fragment {
 
   public SimpleEmail getEmailContent() {
     SimpleEmail email = new SimpleEmail();
+    email.fromAddress = Config.EMAIL;
     email.toAddress = toAddressText.getText().toString();
     email.subject = subjectText.getText().toString();
     email.message = messageText.getText().toString();
     return email;
   }
 
-  @SuppressLint("StaticFieldLeak")
-  private class SendEmailTask extends AsyncTask<SimpleEmail, Void, Boolean> {
-
-    @Override
-    protected Boolean doInBackground(SimpleEmail... emails) {
-      try {
-        for (SimpleEmail email : emails) {
-          EmailUtil.sendEmail(email);
-        }
-        return true;
-      } catch (Exception e) {
-        e.printStackTrace();
-        return false;
-      }
-    }
-
-    @Override
-    protected void onPostExecute(Boolean successful) {
-      super.onPostExecute(successful);
-      if (successful) {
-        NavHostFragment.findNavController(thisFragment).popBackStack();
-      }
-      createEmailStatusSnackBar(successful);
-    }
-  }
-
-  private void createEmailStatusSnackBar(boolean status) {
-    if (status) {
-      Snackbar.make((View) thisView.getParent(), "SimpleEmail Sent!", Snackbar.LENGTH_LONG)
-          .setAction("Action", null).show();
-    } else {
-      Snackbar.make(thisView, "SENT FAILED!", Snackbar.LENGTH_LONG)
-          .setAction("Action", null).show();
-    }
-  }
 }
 

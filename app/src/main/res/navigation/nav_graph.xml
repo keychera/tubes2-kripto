@@ -9,7 +9,11 @@
     android:id="@+id/composeFragment"
     android:label="fragment_compose"
     android:name="com.keychera.cryptemail.ComposeFragment"
-    tools:layout="@layout/fragment_compose"/>
+    tools:layout="@layout/fragment_compose">
+    <action
+      android:id="@+id/action_composeFragment_to_emailDetailFragment"
+      app:destination="@id/emailDetailFragment"/>
+  </fragment>
   <fragment
     android:id="@+id/emailFragment"
     android:label="fragment_email_list"
@@ -38,5 +42,9 @@
     android:id="@+id/emailDetailFragment"
     android:name="com.keychera.cryptemail.EmailDetailFragment"
     android:label="email_detail_fragment"
-    tools:layout="@layout/email_detail_fragment"/>
+    tools:layout="@layout/email_detail_fragment">
+    <action
+      android:id="@+id/action_emailDetailFragment_self"
+      app:destination="@id/emailDetailFragment"/>
+  </fragment>
 </navigation>

@@ -31,4 +31,7 @@
   <string name="signature_yes">signature detected</string>
   <string name="signature_no">no signature detected</string>
   <string name="from_hint_text">from</string>
+  <string name="detail_title">Detail Title</string>
+  <string name="detail_title_inbox">Inbox</string>
+  <string name="detail_title_ready_send">Send this email?</string>
 </resources>

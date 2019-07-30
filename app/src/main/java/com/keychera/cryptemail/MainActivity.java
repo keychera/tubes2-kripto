@@ -18,6 +18,7 @@ import android.view.Menu;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.keychera.cryptemail.ComposeFragment.OnComposeFragmentInteractionListener;
+import com.keychera.cryptemail.EmailDetailFragment.DetailType;
 import com.keychera.cryptemail.EmailFragment.onEmailListFragmentInteraction;
 import com.keychera.cryptemail.HelloFragment.OnFragmentInteractionListener;
 
@@ -104,9 +105,10 @@ public class MainActivity extends AppCompatActivity
   }
 
   @Override
-  public void onEmailItemFragmentInteraction(SimpleEmail item) {
+  public void onEmailItemFragmentInteraction(SimpleEmail email) {
     Bundle args = new Bundle();
-    args.putSerializable(EmailDetailFragment.ARG_SIMPLE_EMAIL, item);
+    args.putSerializable(EmailDetailFragment.ARG_SIMPLE_EMAIL, email);
+    args.putSerializable(EmailDetailFragment.ARG_DETAIL_TYPE, DetailType.VIEW);
     navController.navigate(R.id.emailDetailFragment, args);
   }
 

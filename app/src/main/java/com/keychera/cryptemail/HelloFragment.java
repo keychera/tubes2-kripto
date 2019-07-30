@@ -1,12 +1,17 @@
 package com.keychera.cryptemail;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
 /**
@@ -26,6 +31,7 @@ public class HelloFragment extends Fragment {
   private String mParam2;
 
   private OnFragmentInteractionListener mListener;
+  private Fragment thisFragment;
 
   public HelloFragment() {
     // Required empty public constructor
@@ -62,14 +68,22 @@ public class HelloFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     // Inflate the layout for this fragment
-    return inflater.inflate(R.layout.fragment_hello, container, false);
-  }
 
-  // TODO: Rename method, update argument and hook method into UI event
-  public void onButtonPressed(Uri uri) {
-    if (mListener != null) {
-      mListener.onFragmentInteraction(uri);
-    }
+    thisFragment = this;
+    View view = inflater.inflate(R.layout.fragment_hello, container, false);
+    //set FAB
+    FloatingActionButton fab = view.findViewById(R.id.compose_fab);
+    fab.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        NavHostFragment.findNavController(thisFragment).navigate(R.id.composeFragment);
+      }
+    });
+
+    //test pythonrunner
+    new RunPythonTask().execute(getContext());
+
+    return view;
   }
 
   @Override
@@ -101,5 +115,17 @@ public class HelloFragment extends Fragment {
 
     // TODO: Update argument type and name
     void onFragmentInteraction(Uri uri);
+  }
+
+  @SuppressLint("StaticFieldLeak")
+  private class RunPythonTask extends AsyncTask<Context, Void, Void> {
+
+    @Override
+    protected Void doInBackground(Context... contexts) {
+      for (Context context:contexts) {
+        new PythonRunner(context);
+      }
+      return null;
+    }
   }
 }

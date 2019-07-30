@@ -1,11 +1,13 @@
 package com.keychera.cryptemail;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class SimpleEmail {
+
+public class SimpleEmail implements Serializable {
   public String fromAddress;
   public String toAddress;
   public String subject;
@@ -30,5 +32,13 @@ public class SimpleEmail {
     if (email == null)
       return false;
     return pat.matcher(email).matches();
+  }
+
+  public boolean isEncrypted() {
+    return false;
+  }
+
+  public boolean isSigned() {
+    return false;
   }
 }

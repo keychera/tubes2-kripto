@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Properties;
 import javax.mail.Folder;
 import javax.mail.Message;
+import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
@@ -178,6 +179,7 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
         try {
           email.subject = message.getSubject();
           email.fromAddress = message.getFrom()[0].toString();
+          email.toAddress = message.getRecipients(RecipientType.TO)[0].toString();
           email.sentDate = message.getSentDate();
           email.receivedDate = message.getReceivedDate();
           publishProgress(email);

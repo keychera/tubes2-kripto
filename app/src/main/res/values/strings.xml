@@ -26,4 +26,9 @@
   <string name="desc_email_icon">Email Icon</string>
   <string name="test_string">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus tincidunt blandit rhoncus. In dui nibh, tristique a mollis quis, tempus in felis. Phasellus nisi velit, porttitor in mollis faucibus, lacinia quis est.</string>
   <string name="test_email">lorem@ipsum.dolor, lorem@ipsum.dolor, lorem@ipsum.dolor, lorem@ipsum.dolor</string>
+  <string name="encryption_yes">encryption detected</string>
+  <string name="encryption_no">no encryption detected</string>
+  <string name="signature_yes">signature detected</string>
+  <string name="signature_no">no signature detected</string>
+  <string name="from_hint_text">from</string>
 </resources>

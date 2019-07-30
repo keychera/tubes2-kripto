@@ -2,6 +2,7 @@ package com.keychera.cryptemail;
 
 import android.net.Uri;
 import android.os.Bundle;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -104,7 +105,9 @@ public class MainActivity extends AppCompatActivity
 
   @Override
   public void onEmailItemFragmentInteraction(SimpleEmail item) {
-
+    Bundle args = new Bundle();
+    args.putSerializable(EmailDetailFragment.ARG_SIMPLE_EMAIL, item);
+    navController.navigate(R.id.emailDetailFragment, args);
   }
 
   @Override

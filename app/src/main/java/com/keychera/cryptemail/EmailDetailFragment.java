@@ -1,5 +1,7 @@
 package com.keychera.cryptemail;
 
+import android.os.AsyncTask;
+import android.os.Message;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.lifecycle.Observer;
@@ -11,12 +13,15 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import java.io.IOException;
+import javax.mail.MessagingException;
 
 public class EmailDetailFragment extends Fragment {
 
   public static final String ARG_SIMPLE_EMAIL = "simple-email";
 
   private SimpleEmail email;
+  TextView messageText;
 
   public static EmailDetailFragment newInstance(SimpleEmail email) {
     EmailDetailFragment fragment = new EmailDetailFragment();
@@ -46,6 +51,7 @@ public class EmailDetailFragment extends Fragment {
     TextView signatureStatus = view.findViewById(R.id.status_signature);
     Button decryptButton = view.findViewById(R.id.button_decrypt);
     Button verifySignatureButton = view.findViewById(R.id.button_verify_sign);
+    messageText = view.findViewById(R.id.message_text);
 
     fromAddressText.setText(email.fromAddress);
     toAddressText.setText(email.toAddress);
@@ -64,6 +70,31 @@ public class EmailDetailFragment extends Fragment {
       signatureStatus.setText(getString(R.string.signature_no));
       verifySignatureButton.setEnabled(false);
     }
+    new GetEmailContentTask().execute(email);
     return view;
+  }
+
+  private class GetEmailContentTask extends AsyncTask<SimpleEmail, String, Void> {
+
+    @Override
+    protected Void doInBackground(SimpleEmail... simpleEmails) {
+      for (SimpleEmail simpleEmail: simpleEmails) {
+        try {
+          simpleEmail.getMessageContent();
+          publishProgress(simpleEmail.message);
+        } catch (MessagingException| IOException e) {
+          e.printStackTrace();
+        }
+      }
+      return null;
+    }
+
+    @Override
+    protected void onProgressUpdate(String... values) {
+      super.onProgressUpdate(values);
+      for (String value:values) {
+        messageText.setText(value);
+      }
+    }
   }
 }

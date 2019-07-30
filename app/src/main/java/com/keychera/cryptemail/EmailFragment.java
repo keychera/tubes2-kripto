@@ -11,18 +11,17 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import javax.mail.Folder;
 import javax.mail.Message;
-import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
@@ -37,7 +36,6 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
   private Fragment thisFragment;
   private onEmailListFragmentInteraction mListener;
 
-  private List<SimpleEmail> emails;
   private EmailListRecyclerViewAdapter emailListRecyclerViewAdapter;
   private SwipeRefreshLayout mSwipeRefreshLayout;
   private String EmailFolderName;
@@ -68,7 +66,9 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
     }
 
     thisFragment = this;
-    emails = new ArrayList<>();
+    if (PropertiesSingleton.getInstance().emails == null) {
+      PropertiesSingleton.getInstance().emails = new ArrayList<>();
+    }
   }
 
   @Override
@@ -85,18 +85,21 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
         android.R.color.holo_orange_dark,
         android.R.color.holo_blue_dark);
 
-    mSwipeRefreshLayout.post(new Runnable() {
-      @Override
-      public void run() {
-        // Fetching data
-        fetchData();
-      }
-    });
+    if (PropertiesSingleton.getInstance().emails.isEmpty()) {
+      mSwipeRefreshLayout.post(new Runnable() {
+        @Override
+        public void run() {
+          // Fetching data
+          fetchData();
+        }
+      });
+    }
 
     // Set the adapter
     Context context = view.getContext();
     RecyclerView recyclerView = view.findViewById(R.id.email_list);
     recyclerView.setLayoutManager(new LinearLayoutManager(context));
+    List<SimpleEmail> emails = PropertiesSingleton.getInstance().emails;
     emailListRecyclerViewAdapter = new EmailListRecyclerViewAdapter(emails, mListener);
     recyclerView.setAdapter(emailListRecyclerViewAdapter);
 
@@ -174,16 +177,13 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
         return null;
       }
 
-      for ( Message message: messages) {
-        SimpleEmail email = new SimpleEmail();
+      for ( int i = 0; (i < messages.length && i < 5); i++) {
+        Message message = messages[messages.length - i - 1];
+        SimpleEmail email;
         try {
-          email.subject = message.getSubject();
-          email.fromAddress = message.getFrom()[0].toString();
-          email.toAddress = message.getRecipients(RecipientType.TO)[0].toString();
-          email.sentDate = message.getSentDate();
-          email.receivedDate = message.getReceivedDate();
+          email = new SimpleEmail(message);
           publishProgress(email);
-        } catch (MessagingException e) {
+        } catch (MessagingException | IOException e) {
           e.printStackTrace();
         }
       }
@@ -193,7 +193,7 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
     @Override
     protected void onPreExecute() {
       super.onPreExecute();
-      emails.clear();
+      PropertiesSingleton.getInstance().emails.clear();
       emailListRecyclerViewAdapter.notifyDataSetChanged();
     }
 
@@ -201,9 +201,9 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
     protected void onProgressUpdate(SimpleEmail... comingEmails) {
       super.onProgressUpdate(comingEmails);
       for (SimpleEmail email:comingEmails) {
-        emails.add(0,email);
+        PropertiesSingleton.getInstance().emails.add(email);
       }
-      emailListRecyclerViewAdapter.notifyItemInserted(0);
+      emailListRecyclerViewAdapter.notifyItemInserted(PropertiesSingleton.getInstance().emails.size());
     }
 
     @Override

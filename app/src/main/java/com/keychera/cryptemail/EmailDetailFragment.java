@@ -99,18 +99,15 @@ public class EmailDetailFragment extends Fragment {
       new GetEmailContentTask().execute(email);
     } else if (detail_type == DetailType.READY_SEND) {
       titleText.setText(R.string.detail_title_ready_send);
+      Snackbar.make(view, "Message Ready", Snackbar.LENGTH_LONG)
+          .setAction("Action", null).show();
       messageText.setText(email.message);
       fab.setOnClickListener(new OnClickListener() {
         @Override
         public void onClick(View view) {
-          if (email.isValid()) {
             Snackbar.make(view, "SENDING", Snackbar.LENGTH_INDEFINITE)
                 .setAction("Action", null).show();
             new SendEmailTask().execute(email);
-          } else {
-            Snackbar.make(view, "Invalid Input", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show();
-          }
         }
       });
     } else if (detail_type == DetailType.TEMP_VIEW) {

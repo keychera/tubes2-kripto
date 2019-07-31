@@ -1,3 +1,6 @@
+from functools import reduce
+import base64
+
 class BlockCipherMachine():
     def __init__(self, mode, cryptor):
         self.mode = mode
@@ -23,6 +26,16 @@ class BlockCipherMachine():
         for i in range(0, len(self.block_list)):
             self.cycle = i
             self.mode.operate(self, is_encryption)
+    
+    def get_b64_encoded_string_result(self):
+        result = reduce(lambda i, j: i + j, self.result_list)
+        result = base64.b64encode(bytearray(result))
+        return result.decode('utf-8')
+
+    def get_string_result(self):
+        result = reduce(lambda i, j: i + j, self.result_list)
+        result = bytes(result)
+        return result.decode('utf-8')
 
     def reset(self):
         self.result_list = list()

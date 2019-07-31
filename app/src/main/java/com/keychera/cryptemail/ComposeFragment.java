@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View.OnClickListener;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -14,6 +15,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.navigation.fragment.NavHostFragment;
+import com.chaquo.python.PyObject;
+import com.chaquo.python.Python;
+import com.chaquo.python.android.AndroidPlatform;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.keychera.cryptemail.EmailDetailFragment.DetailType;
@@ -26,18 +30,16 @@ import com.keychera.cryptemail.EmailDetailFragment.DetailType;
  */
 public class ComposeFragment extends Fragment {
 
-  // TODO: Rename parameter arguments, choose names that match
-  // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-  private static final String ARG_PARAM1 = "param1";
-  private static final String ARG_PARAM2 = "param2";
-
-  // TODO: Rename and change types of parameters
-  private String mParam1;
-  private String mParam2;
-
   private OnComposeFragmentInteractionListener mListener;
   private EditText toAddressText, subjectText, messageText;
+  private CheckBox encryptCheckBox, signCheckBox;
   private ComposeFragment thisFragment;
+  private View thisView;
+
+  private  enum ComposeStatus {
+    ENCRYPTING,
+    SIGNING,
+  }
 
   public ComposeFragment() {
     // Required empty public constructor
@@ -47,27 +49,10 @@ public class ComposeFragment extends Fragment {
    * Use this factory method to create a new instance of this fragment using the provided
    * parameters.
    *
-   * @param param1 Parameter 1.
-   * @param param2 Parameter 2.
    * @return A new instance of fragment ComposeFragment.
    */
-  // TODO: Rename and change types and number of parameters
-  public static ComposeFragment newInstance(String param1, String param2) {
-    ComposeFragment fragment = new ComposeFragment();
-    Bundle args = new Bundle();
-    args.putString(ARG_PARAM1, param1);
-    args.putString(ARG_PARAM2, param2);
-    fragment.setArguments(args);
-    return fragment;
-  }
-
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    if (getArguments() != null) {
-      mParam1 = getArguments().getString(ARG_PARAM1);
-      mParam2 = getArguments().getString(ARG_PARAM2);
-    }
+  public static ComposeFragment newInstance() {
+    return new ComposeFragment();
   }
 
   @Override
@@ -77,28 +62,23 @@ public class ComposeFragment extends Fragment {
     thisFragment = this;
 
     // Inflate the layout for this fragment
-    View thisView = inflater.inflate(R.layout.fragment_compose, container, false);
+    thisView = inflater.inflate(R.layout.fragment_compose, container, false);
     toAddressText = thisView.findViewById(R.id.to_address_text);
     subjectText = thisView.findViewById(R.id.subject_text);
     messageText = thisView.findViewById(R.id.message_text);
+    encryptCheckBox = thisView.findViewById(R.id.checkbox_encrypt);
+    signCheckBox = thisView.findViewById(R.id.checkbox_sign);
 
     //set FAB
     FloatingActionButton fab = thisView.findViewById(R.id.send_fab);
     fab.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View view) {
-        SimpleEmail email =  getEmailContent();
-        if (email.isValid()) {
-          Snackbar.make(view, "SENDING", Snackbar.LENGTH_INDEFINITE)
-              .setAction("Action", null).show();
-          Bundle args = new Bundle();
-          args.putSerializable(EmailDetailFragment.ARG_SIMPLE_EMAIL, email);
-          args.putSerializable(EmailDetailFragment.ARG_DETAIL_TYPE, DetailType.READY_SEND);
-          NavHostFragment.findNavController(thisFragment).navigate(R.id.emailDetailFragment, args);
-        } else {
-          Snackbar.make(view, "Invalid Input", Snackbar.LENGTH_LONG)
-              .setAction("Action", null).show();
-        }
+        ComposeBundle composeBundle = new ComposeBundle(getContext());
+        composeBundle.emailToCompose = getEmailContent();
+        composeBundle.encryptFlag = encryptCheckBox.isChecked();
+        composeBundle.signFlag = signCheckBox.isChecked();
+        new ComposeEmailTask().execute(composeBundle);
       }
     });
 
@@ -137,5 +117,75 @@ public class ComposeFragment extends Fragment {
     return email;
   }
 
+  private class ComposeBundle {
+    Context context;
+    public SimpleEmail emailToCompose;
+    public boolean encryptFlag;
+    public boolean signFlag;
+    public String encryptKeyFilename;
+    public String signPrivKeyFilename;
+
+    public ComposeBundle(Context context) {
+      this.context = context;
+      encryptFlag = false;
+      signFlag = false;
+      encryptKeyFilename = "key.dat";
+      signPrivKeyFilename = null;
+    }
+  }
+
+  private class ComposeEmailTask extends AsyncTask<ComposeBundle, ComposeStatus, SimpleEmail> {
+    @Override
+    protected SimpleEmail doInBackground(ComposeBundle... composeBundles) {
+      ComposeBundle bundle = composeBundles[0];
+      SimpleEmail email = bundle.emailToCompose;
+      if (email.isValid()) {
+        if (bundle.encryptFlag) {
+          publishProgress(ComposeStatus.ENCRYPTING);
+          email.message = PythonRunner.Encrypt(bundle.context, email.message, bundle.encryptKeyFilename);
+        }
+        if (bundle.signFlag) {
+          publishProgress(ComposeStatus.SIGNING);
+
+        }
+        return email;
+      } else {
+        return null;
+      }
+    }
+
+
+
+    @Override
+    protected void onProgressUpdate(ComposeStatus... values) {
+      super.onProgressUpdate(values);
+      ComposeStatus status = values[0];
+      if(status == ComposeStatus.ENCRYPTING) {
+        Snackbar.make(thisView, "ENCRYPTING", Snackbar.LENGTH_INDEFINITE)
+            .setAction("Action", null).show();
+
+      } else if (status == ComposeStatus.SIGNING){
+        Snackbar.make(thisView, "SIGNING", Snackbar.LENGTH_INDEFINITE)
+            .setAction("Action", null).show();
+      } else {
+        Snackbar.make(thisView, "DONE", Snackbar.LENGTH_SHORT)
+            .setAction("Action", null).show();
+      }
+    }
+
+    @Override
+    protected void onPostExecute(SimpleEmail email) {
+      if (email != null) {
+        super.onPostExecute(email);
+        Bundle args = new Bundle();
+        args.putSerializable(EmailDetailFragment.ARG_SIMPLE_EMAIL, email);
+        args.putSerializable(EmailDetailFragment.ARG_DETAIL_TYPE, DetailType.READY_SEND);
+        NavHostFragment.findNavController(thisFragment).navigate(R.id.emailDetailFragment, args);
+      } else {
+        Snackbar.make(thisView, "Invalid Input", Snackbar.LENGTH_LONG)
+            .setAction("Action", null).show();
+      }
+    }
+  }
 }
 

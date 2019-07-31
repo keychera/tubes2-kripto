@@ -1,5 +1,6 @@
 package com.keychera.cryptemail;
 
+import android.Manifest;
 import android.Manifest.permission;
 import android.app.Activity;
 import android.content.Context;
@@ -7,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 import java.io.BufferedInputStream;
@@ -22,6 +24,25 @@ import java.util.regex.Pattern;
 public class FileHelper {
   public final static String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/cryptemail/" ;
   private final static String TAG = FileHelper.class.getName();
+  // Storage Permissions
+  public static final int REQUEST_EXTERNAL_STORAGE = 1;
+  private static String[] PERMISSIONS_STORAGE = {
+      Manifest.permission.READ_EXTERNAL_STORAGE,
+      Manifest.permission.WRITE_EXTERNAL_STORAGE
+  };
+
+  public static void verifyStoragePermissions(Activity activity) {
+    // Check if we have write permission
+    int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    //if (permission != PackageManager.PERMISSION_GRANTED) {
+      // We don't have permission so prompt the user
+      ActivityCompat.requestPermissions(
+          activity,
+          PERMISSIONS_STORAGE,
+          REQUEST_EXTERNAL_STORAGE
+      );
+    //}
+  }
 
   static void CallFilePicker(Activity activity, int requestCode, String ext) {
     MaterialFilePicker picker = new MaterialFilePicker()

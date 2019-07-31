@@ -18,7 +18,9 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.keychera.cryptemail.PropertiesSingleton.PropertyListener;
+import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import javax.mail.MessagingException;
 
 public class EmailDetailFragment extends Fragment implements PropertyListener {
@@ -39,8 +41,10 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
   private EmailDetailFragment thisFragment;
   private TextView encryptionStatus;
   private TextView signatureStatus;
+  private TextView attachmentStatus;
   private Button decryptButton;
   private Button verifySignatureButton;
+  private Button downloadAttachmentButton;
 
 
   public static EmailDetailFragment newInstance(SimpleEmail email, DetailType type) {
@@ -73,7 +77,9 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
     TextView subjectText = view.findViewById(R.id.subject_text);
     encryptionStatus = view.findViewById(R.id.status_encryption);
     signatureStatus = view.findViewById(R.id.status_signature);
+    attachmentStatus = view.findViewById(R.id.status_attachment);
     decryptButton = view.findViewById(R.id.button_decrypt);
+    downloadAttachmentButton = view.findViewById(R.id.button_attachment);
     verifySignatureButton = view.findViewById(R.id.button_verify_sign);
     FloatingActionButton fab = view.findViewById(R.id.send_fab);
     messageText = view.findViewById(R.id.message_text);
@@ -81,6 +87,7 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
     fromAddressText.setText(email.fromAddress);
     toAddressText.setText(email.toAddress);
     subjectText.setText(email.subject);
+    attachmentStatus.setVisibility(View.INVISIBLE);
     UpdateUI();
 
     if (detail_type == DetailType.VIEW) {
@@ -88,6 +95,14 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
       titleText.setText(R.string.detail_title_inbox);
       fab.hide();
       new GetEmailContentTask().execute(email);
+      downloadAttachmentButton.setVisibility(View.VISIBLE);
+      downloadAttachmentButton.setOnClickListener(new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+          PropertiesSingleton.getInstance().subscribe(thisFragment);
+          FileHelper.verifyStoragePermissions(getActivity());
+        }
+      });
 
     } else if (detail_type == DetailType.READY_SEND) {
 
@@ -103,6 +118,7 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
             new SendEmailTask().execute(email);
         }
       });
+      downloadAttachmentButton.setVisibility(View.INVISIBLE);
 
     } else if (detail_type == DetailType.TEMP_VIEW) {
 
@@ -117,12 +133,13 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
       messageText.setText(email.bodyText);
       PropertiesSingleton.getInstance().subscribe(thisFragment);
       FileHelper.CallFilePicker(getActivity(),2,null);
-
+      downloadAttachmentButton.setVisibility(View.INVISIBLE);
 
     } else {
 
       messageText.setText(R.string.test_string);
       fab.hide();
+      downloadAttachmentButton.setVisibility(View.INVISIBLE);
 
     }
     return view;
@@ -151,6 +168,10 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
         Snackbar.make(thisView, "Canceled", Snackbar.LENGTH_LONG)
             .setAction("Action", null).show();
       }
+    } else if (requestCode == 4) {
+      PropertiesSingleton.getInstance().clearSharedData();
+      PropertiesSingleton.getInstance().unsubscribe(thisFragment);
+      new DownloadAttachmentTask().execute();
     } else {
       PropertiesSingleton.getInstance().clearSharedData();
       PropertiesSingleton.getInstance().unsubscribe(thisFragment);
@@ -210,6 +231,7 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
         try {
           simpleEmail.getMessageContent();
           publishProgress(simpleEmail.bodyText);
+          simpleEmail.getAttachment();
         } catch (MessagingException| IOException e) {
           e.printStackTrace();
         }
@@ -225,6 +247,8 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
         UpdateUI();
       }
     }
+
+
   }
 
 
@@ -307,6 +331,53 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
       }
       Snackbar.make(thisView, verifyStatus, Snackbar.LENGTH_LONG)
           .setAction("Action", null).show();
+    }
+  }
+
+  public enum DownloadStatus {
+    SUCCESS,
+    FAIL,
+    NO_ATTACHMENT
+  }
+
+  private class DownloadAttachmentTask extends AsyncTask<Void, Void, DownloadStatus> {
+
+    @Override
+    protected DownloadStatus doInBackground(Void... voids) {
+      Snackbar.make(thisView, "DOWNLOADING ATTACHMENT", Snackbar.LENGTH_INDEFINITE)
+          .setAction("Action", null).show();
+      List<File> files = null;
+      try {
+        files = email.getAttachment();
+      } catch (MessagingException e) {
+        e.printStackTrace();
+        return DownloadStatus.FAIL;
+      } catch (IOException e) {
+        e.printStackTrace();
+        return DownloadStatus.FAIL;
+      }
+
+      if (files == null) {
+        return DownloadStatus.NO_ATTACHMENT;
+      } else {
+        return DownloadStatus.SUCCESS;
+      }
+    }
+
+    @Override
+    protected void onPostExecute(DownloadStatus status) {
+      super.onPostExecute(status);
+      if (status == DownloadStatus.SUCCESS) {
+        Snackbar.make(thisView, "Success", Snackbar.LENGTH_INDEFINITE)
+            .setAction("Action", null).show();
+      } else if (status == DownloadStatus.NO_ATTACHMENT){
+        Snackbar.make(thisView, "No Attachment", Snackbar.LENGTH_INDEFINITE)
+            .setAction("Action", null).show();
+      } else {
+        Snackbar.make(thisView, "Fail", Snackbar.LENGTH_INDEFINITE)
+            .setAction("Action", null).show();
+      }
+
     }
   }
 }

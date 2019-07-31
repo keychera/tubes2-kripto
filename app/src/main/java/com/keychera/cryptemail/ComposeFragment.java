@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -29,8 +30,9 @@ public class ComposeFragment extends Fragment implements PropertyListener {
 
   private OnComposeFragmentInteractionListener mListener;
   private EditText toAddressText, subjectText, messageText;
-  private TextView encryptFile, signFile, textToChange;
+  private TextView encryptFile, signFile, attachFile, textToChange;
   private CheckBox encryptCheckBox, signCheckBox, checkBoxToChange;
+  private Button attachButton;
   private ComposeFragment thisFragment;
   private View thisView;
 
@@ -68,6 +70,8 @@ public class ComposeFragment extends Fragment implements PropertyListener {
     signCheckBox = thisView.findViewById(R.id.checkbox_sign);
     encryptFile = thisView.findViewById(R.id.status_encryption);
     signFile = thisView.findViewById(R.id.status_signature);
+    attachFile = thisView.findViewById(R.id.status_attached_file);
+    attachButton = thisView.findViewById(R.id.button_attach);
 
     encryptCheckBox.setOnClickListener(new OnClickListener() {
       @Override
@@ -94,6 +98,15 @@ public class ComposeFragment extends Fragment implements PropertyListener {
         } else {
           textToChange.setText(null);
         }
+      }
+    });
+
+    attachButton.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        textToChange = attachFile;
+        PropertiesSingleton.getInstance().subscribe(thisFragment);
+        FileHelper.CallFilePicker(getActivity(),1, null);
       }
     });
 
@@ -160,6 +173,7 @@ public class ComposeFragment extends Fragment implements PropertyListener {
     email.toAddress = toAddressText.getText().toString();
     email.subject = subjectText.getText().toString();
     email.bodyText = messageText.getText().toString();
+    email.attachFiles = attachFile.getText().toString();
     return email;
   }
 

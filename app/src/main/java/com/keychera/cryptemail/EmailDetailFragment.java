@@ -87,7 +87,6 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
     fromAddressText.setText(email.fromAddress);
     toAddressText.setText(email.toAddress);
     subjectText.setText(email.subject);
-    attachmentStatus.setVisibility(View.INVISIBLE);
     UpdateUI();
 
     if (detail_type == DetailType.VIEW) {
@@ -95,10 +94,14 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
       titleText.setText(R.string.detail_title_inbox);
       fab.hide();
       new GetEmailContentTask().execute(email);
+
+      attachmentStatus.setVisibility(View.INVISIBLE);
       downloadAttachmentButton.setVisibility(View.VISIBLE);
       downloadAttachmentButton.setOnClickListener(new OnClickListener() {
         @Override
         public void onClick(View view) {
+          Snackbar.make(thisView, "REQUESTING PERMISSION (auto)", Snackbar.LENGTH_INDEFINITE)
+              .setAction("Action", null).show();
           PropertiesSingleton.getInstance().subscribe(thisFragment);
           FileHelper.verifyStoragePermissions(getActivity());
         }
@@ -109,6 +112,7 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
       titleText.setText(R.string.detail_title_ready_send);
       Snackbar.make(view, "Message Ready", Snackbar.LENGTH_LONG)
           .setAction("Action", null).show();
+      attachmentStatus.setText(email.attachFiles);
       messageText.setText(email.bodyText);
       fab.setOnClickListener(new OnClickListener() {
         @Override
@@ -134,6 +138,7 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
       PropertiesSingleton.getInstance().subscribe(thisFragment);
       FileHelper.CallFilePicker(getActivity(),2,null);
       downloadAttachmentButton.setVisibility(View.INVISIBLE);
+      attachmentStatus.setVisibility(View.INVISIBLE);
 
     } else {
 
@@ -141,6 +146,7 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
       fab.hide();
       downloadAttachmentButton.setVisibility(View.INVISIBLE);
 
+      attachmentStatus.setVisibility(View.INVISIBLE);
     }
     return view;
   }
@@ -368,7 +374,7 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
     protected void onPostExecute(DownloadStatus status) {
       super.onPostExecute(status);
       if (status == DownloadStatus.SUCCESS) {
-        Snackbar.make(thisView, "Success", Snackbar.LENGTH_INDEFINITE)
+        Snackbar.make(thisView, "Success, files saved to :" + FileHelper.path, Snackbar.LENGTH_INDEFINITE)
             .setAction("Action", null).show();
       } else if (status == DownloadStatus.NO_ATTACHMENT){
         Snackbar.make(thisView, "No Attachment", Snackbar.LENGTH_INDEFINITE)

@@ -125,11 +125,27 @@
           android:layout_marginEnd="@dimen/text_margin"
           android:hint="@string/status_text"/>
       </TableRow>
+      <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <Button
+          android:id="@+id/button_attachment"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="@dimen/text_margin"
+          android:text="@string/button_attachement"/>
+        <TextView
+          android:id="@+id/status_attachment"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="@dimen/text_margin"
+          android:hint="@string/status_attachment"/>
+      </TableRow>
     </TableLayout>
     <TextView
       android:id="@+id/message_text"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="fill_parent"
       android:layout_margin="@dimen/text_margin"
       android:autofillHints=""
       android:ems="10"

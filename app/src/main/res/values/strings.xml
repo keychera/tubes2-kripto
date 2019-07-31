@@ -35,4 +35,7 @@
   <string name="detail_title_inbox">Inbox</string>
   <string name="detail_title_ready_send">Send this email?</string>
   <string name="detail_title_temp_view">(Temporary View) Encryption Result</string>
+  <string name="button_attachement">Download</string>
+  <string name="button_attach">Attach</string>
+  <string name="status_attachment">No Attachment</string>
 </resources>

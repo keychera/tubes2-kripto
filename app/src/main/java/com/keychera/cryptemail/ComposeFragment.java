@@ -1,8 +1,6 @@
 package com.keychera.cryptemail;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,15 +14,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.navigation.fragment.NavHostFragment;
-import com.chaquo.python.PyObject;
-import com.chaquo.python.Python;
-import com.chaquo.python.android.AndroidPlatform;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.keychera.cryptemail.EmailDetailFragment.DetailType;
 import com.keychera.cryptemail.PropertiesSingleton.PropertyListener;
-import com.nbsp.materialfilepicker.MaterialFilePicker;
-import java.util.regex.Pattern;
 
 
 /**
@@ -166,7 +159,7 @@ public class ComposeFragment extends Fragment implements PropertyListener {
     email.fromAddress = Config.EMAIL;
     email.toAddress = toAddressText.getText().toString();
     email.subject = subjectText.getText().toString();
-    email.message = messageText.getText().toString();
+    email.bodyText = messageText.getText().toString();
     return email;
   }
 
@@ -197,27 +190,27 @@ public class ComposeFragment extends Fragment implements PropertyListener {
         StringBuilder stringBuilder = new StringBuilder();
         if (bundle.encryptFlag) {
           publishProgress(ComposeStatus.ENCRYPTING);
-          String encrypted_message = PythonRunner.Encrypt(bundle.context, email.message, bundle.encryptKeyFilename);
+          String encrypted_message = PythonRunner.Encrypt(bundle.context, email.bodyText, bundle.encryptKeyFilename);
           stringBuilder
               .append(SimpleEmail.ENCRYPTED_TAG_START)
               .append(encrypted_message)
               .append(SimpleEmail.ENCRYPTED_TAG_END);
-          email.message = encrypted_message;
+          email.bodyText = encrypted_message;
         } else {
-          stringBuilder.append(email.message);
+          stringBuilder.append(email.bodyText);
         }
         if (bundle.signFlag) {
           publishProgress(ComposeStatus.SIGNING);
           ECDSA signer = new ECDSA();
           byte[] encodedPv = FileHelper.ReadFileBytes(bundle.signPrivKeyFilename, bundle.context);
-          String hashToSign = SHA.SHA1(email.message);
+          String hashToSign = SHA.SHA1(email.bodyText);
           SimpleSignedData signedData = signer.signData(hashToSign.getBytes(), encodedPv);
           stringBuilder
               .append(SimpleEmail.SIGNATURE_TAG_START)
               .append(signedData.getSignatureString())
               .append(SimpleEmail.SIGNATURE_TAG_END);
         }
-        email.message = stringBuilder.toString();
+        email.bodyText = stringBuilder.toString();
         return email;
       } else {
         return null;

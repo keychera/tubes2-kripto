@@ -3,15 +3,10 @@ package com.keychera.cryptemail;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.os.Message;
-import android.text.BoringLayout;
 import android.util.Base64;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-import androidx.arch.core.executor.DefaultTaskExecutor;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +20,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.keychera.cryptemail.PropertiesSingleton.PropertyListener;
 import java.io.IOException;
 import javax.mail.MessagingException;
-import org.apache.commons.lang3.StringUtils;
 
 public class EmailDetailFragment extends Fragment implements PropertyListener {
 
@@ -100,7 +94,7 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
       titleText.setText(R.string.detail_title_ready_send);
       Snackbar.make(view, "Message Ready", Snackbar.LENGTH_LONG)
           .setAction("Action", null).show();
-      messageText.setText(email.message);
+      messageText.setText(email.bodyText);
       fab.setOnClickListener(new OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -120,7 +114,7 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
         }
       });
       fab.setImageResource(R.drawable.ic_cancel);
-      messageText.setText(email.message);
+      messageText.setText(email.bodyText);
       PropertiesSingleton.getInstance().subscribe(thisFragment);
       FileHelper.CallFilePicker(getActivity(),2,null);
 
@@ -143,7 +137,7 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
       PropertiesSingleton.getInstance().clearSharedData();
       PropertiesSingleton.getInstance().unsubscribe(thisFragment);
       if (filename != null) {
-        new DecryptionTask().execute(email.message, filename);
+        new DecryptionTask().execute(email.bodyText, filename);
       } else {
         NavHostFragment.findNavController(thisFragment).popBackStack();
       }
@@ -175,7 +169,7 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
           public void onClick(View view) {
             Bundle args = new Bundle();
             SimpleEmail decryptedEmail = new SimpleEmail(email);
-            decryptedEmail.message = email.getEncryptedMessage();
+            decryptedEmail.bodyText = email.getEncryptedMessage();
             args.putSerializable(EmailDetailFragment.ARG_SIMPLE_EMAIL, decryptedEmail);
             args.putSerializable(EmailDetailFragment.ARG_DETAIL_TYPE, DetailType.TEMP_VIEW);
             NavHostFragment.findNavController(thisFragment)
@@ -215,7 +209,7 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
       for (SimpleEmail simpleEmail: simpleEmails) {
         try {
           simpleEmail.getMessageContent();
-          publishProgress(simpleEmail.message);
+          publishProgress(simpleEmail.bodyText);
         } catch (MessagingException| IOException e) {
           e.printStackTrace();
         }

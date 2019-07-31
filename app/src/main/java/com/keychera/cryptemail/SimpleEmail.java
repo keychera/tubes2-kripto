@@ -127,4 +127,12 @@ public class SimpleEmail implements Serializable {
       return null;
     }
   }
+
+  public String getSignedData() {
+    String signedData= getEncryptedMessage();
+    if (signedData == null) {
+      signedData = StringUtils.substringBefore(message, SIGNATURE_TAG_START);
+    }
+    return signedData;
+  }
 }

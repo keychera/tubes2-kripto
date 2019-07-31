@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Message;
+import android.text.BoringLayout;
+import android.util.Base64;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
@@ -23,6 +25,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.keychera.cryptemail.PropertiesSingleton.PropertyListener;
 import java.io.IOException;
 import javax.mail.MessagingException;
+import org.apache.commons.lang3.StringUtils;
 
 public class EmailDetailFragment extends Fragment implements PropertyListener {
 
@@ -134,13 +137,29 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
 
   @Override
   public void OnPropertyChanged() {
-    String filename = PropertiesSingleton.getInstance().sharedString;
-    PropertiesSingleton.getInstance().sharedString = null;
-    PropertiesSingleton.getInstance().unsubscribe(thisFragment);
-    if (filename != null) {
-      new DecryptionTask().execute(email.message, filename);
+    int requestCode = PropertiesSingleton.getInstance().sharedInt;
+    if (requestCode == 2) {
+      String filename = PropertiesSingleton.getInstance().sharedString;
+      PropertiesSingleton.getInstance().clearSharedData();
+      PropertiesSingleton.getInstance().unsubscribe(thisFragment);
+      if (filename != null) {
+        new DecryptionTask().execute(email.message, filename);
+      } else {
+        NavHostFragment.findNavController(thisFragment).popBackStack();
+      }
+    } else if (requestCode == 3) {
+      String filename = PropertiesSingleton.getInstance().sharedString;
+      PropertiesSingleton.getInstance().clearSharedData();
+      PropertiesSingleton.getInstance().unsubscribe(thisFragment);
+      if (filename != null) {
+        new VerifySignatureTask().execute(email.getSignedData(), email.getSignature(), filename);
+      } else {
+        Snackbar.make(thisView, "Canceled", Snackbar.LENGTH_LONG)
+            .setAction("Action", null).show();
+      }
     } else {
-      NavHostFragment.findNavController(thisFragment).popBackStack();
+      PropertiesSingleton.getInstance().clearSharedData();
+      PropertiesSingleton.getInstance().unsubscribe(thisFragment);
     }
   }
 
@@ -167,10 +186,20 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
         encryptionStatus.setText(getString(R.string.encryption_no));
         decryptButton.setEnabled(false);
       }
-      String signature = email.getSignature();
+      final String signature = email.getSignature();
       if (signature != null) {
         signatureStatus.setText(getString(R.string.signature_yes));
         verifySignatureButton.setEnabled(true);
+        verifySignatureButton.setOnClickListener(new OnClickListener() {
+          @Override
+          public void onClick(View view) {
+            Snackbar.make(thisView, "VERIFYING", Snackbar.LENGTH_INDEFINITE)
+                .setAction("Action", null).show();
+            PropertiesSingleton.getInstance().subscribe(thisFragment);
+            FileHelper.CallFilePicker(getActivity(),3,null);
+
+          }
+        });
       } else {
         signatureStatus.setText(getString(R.string.signature_no));
         verifySignatureButton.setEnabled(false);
@@ -254,6 +283,35 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
       super.onPostExecute(s);
       messageText.setText(s);
       Snackbar.make(thisView, "Done", Snackbar.LENGTH_LONG)
+          .setAction("Action", null).show();
+    }
+  }
+
+  @SuppressLint("StaticFieldLeak")
+  private class VerifySignatureTask extends AsyncTask<String, Void, Boolean> {
+
+    @Override
+    protected Boolean doInBackground(String... args) {
+      String dataToVerify = args[0];
+      String sigToVerify = args[1];
+      String fileName = args[2];
+      ECDSA verifier = new ECDSA();
+      String dataToVerifySHA = SHA.SHA1(dataToVerify);
+      byte[] sigToVerifyBytes = Base64.decode(sigToVerify, Base64.DEFAULT);
+      byte[] encodedPb = FileHelper.ReadFileBytes(fileName, thisFragment.getContext());
+      return verifier.verify(dataToVerifySHA.getBytes(), sigToVerifyBytes, encodedPb);
+    }
+
+    @Override
+    protected void onPostExecute(Boolean isVerified) {
+      super.onPostExecute(isVerified);
+      String verifyStatus;
+      if (isVerified) {
+        verifyStatus = "VALID, Pubkey matches signature";
+      } else {
+        verifyStatus = "INVALID, Pubkey does not match signature";
+      }
+      Snackbar.make(thisView, verifyStatus, Snackbar.LENGTH_LONG)
           .setAction("Action", null).show();
     }
   }

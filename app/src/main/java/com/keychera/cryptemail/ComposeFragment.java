@@ -126,13 +126,15 @@ public class ComposeFragment extends Fragment implements PropertyListener {
 
   @Override
   public void OnPropertyChanged() {
-    String filename = PropertiesSingleton.getInstance().sharedString;
-    if (filename != null) {
-      textToChange.setText(filename);
-    } else {
-      checkBoxToChange.setChecked(false);
+    int requestCode = PropertiesSingleton.getInstance().sharedInt;
+    if (requestCode == 1) {
+      String filename = PropertiesSingleton.getInstance().sharedString;
+      if (filename != null) {
+        textToChange.setText(filename);
+      } else {
+        checkBoxToChange.setChecked(false);
+      }
     }
-
     PropertiesSingleton.getInstance().sharedString = null;
     PropertiesSingleton.getInstance().unsubscribe(thisFragment);
   }
@@ -200,6 +202,9 @@ public class ComposeFragment extends Fragment implements PropertyListener {
               .append(SimpleEmail.ENCRYPTED_TAG_START)
               .append(encrypted_message)
               .append(SimpleEmail.ENCRYPTED_TAG_END);
+          email.message = encrypted_message;
+        } else {
+          stringBuilder.append(email.message);
         }
         if (bundle.signFlag) {
           publishProgress(ComposeStatus.SIGNING);

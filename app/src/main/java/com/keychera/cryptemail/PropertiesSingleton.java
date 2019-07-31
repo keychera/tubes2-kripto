@@ -9,6 +9,7 @@ public class PropertiesSingleton {
 
   public List<SimpleEmail> emails;
   public String sharedString;
+  public int sharedInt;
 
   protected PropertiesSingleton(){}
 
@@ -26,6 +27,11 @@ public class PropertiesSingleton {
 
   public void unsubscribe(PropertyListener listener) {
     listeners.remove(listener);
+  }
+
+  public void clearSharedData() {
+    sharedString = null;
+    sharedInt = 0;
   }
 
   public void notifyListener() {

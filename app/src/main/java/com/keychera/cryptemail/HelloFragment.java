@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
@@ -53,6 +54,9 @@ public class HelloFragment extends Fragment {
         NavHostFragment.findNavController(thisFragment).navigate(R.id.composeFragment);
       }
     });
+
+    TextView textEmail = view.findViewById(R.id.text_email);
+    textEmail.setText(Config.EMAIL);
 
     return view;
   }

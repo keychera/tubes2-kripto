@@ -15,22 +15,47 @@ class PythonRunner {
     PyObject bcmachine_module = os.getModule("BlockCipher.BlockCipherMachine");
     PyObject bcmode_module = os.getModule("BlockCipher.BlockCipherModes");
     PyObject bccryptor_module = os.getModule("BlockCipher.BlockCipherCryptor");
+    PyObject py_str = builtins.get("str");
 
 
     String key = FileHelper.ReadFile(encryptKeyFilename, context);
     PyObject ECB_mode = bcmode_module.callAttr("ECBMode");
-    PyObject cryptor = bccryptor_module.callAttr("Cipher",(Object)key.getBytes());
+    PyObject key_bytes = py_str.callAttr("encode",key);
+    PyObject cryptor = bccryptor_module.callAttr("Cipher",key_bytes);
     PyObject bcmachine = bcmachine_module.callAttr("BlockCipherMachine", ECB_mode, cryptor);
 
-    System.out.println(bcmachine.containsKey("set_block_list"));
-
-    PyObject py_str = builtins.get("str");
     PyObject plain_pybytes = py_str.callAttr("encode", message);
 
     bcmachine.callAttr("set_block_list", plain_pybytes, 8);
     bcmachine.callAttr("run", true);
 
     PyObject res = bcmachine.callAttr("get_b64_encoded_string_result");
+
+    return res.toString();
+  }
+
+  static String Decrypt(Context context, String message, String decryptFileName) {
+    if (!Python.isStarted()) {
+      Python.start(new AndroidPlatform(context));
+    }
+    Python os = Python.getInstance();
+    PyObject builtins = os.getBuiltins();
+    PyObject bcmachine_module = os.getModule("BlockCipher.BlockCipherMachine");
+    PyObject bcmode_module = os.getModule("BlockCipher.BlockCipherModes");
+    PyObject bccryptor_module = os.getModule("BlockCipher.BlockCipherCryptor");
+    PyObject py_str = builtins.get("str");
+
+    String key = FileHelper.ReadFile(decryptFileName, context);
+    PyObject ECB_mode = bcmode_module.callAttr("ECBMode");
+    PyObject key_bytes = py_str.callAttr("encode",key);
+    PyObject cryptor = bccryptor_module.callAttr("Cipher",key_bytes);
+    PyObject bcmachine = bcmachine_module.callAttr("BlockCipherMachine", ECB_mode, cryptor);
+
+
+    bcmachine.callAttr("set_block_list_from_encrypted_string", message, 8);
+    bcmachine.callAttr("run", false);
+
+    PyObject res = bcmachine.callAttr("get_string_result");
 
     return res.toString();
   }

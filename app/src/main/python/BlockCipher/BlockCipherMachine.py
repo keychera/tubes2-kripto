@@ -9,9 +9,13 @@ class BlockCipherMachine():
         self.result_list = list()
         self.cycle = 0
 
+    def set_block_list_from_encrypted_string(self, string_input, block_size):
+        base64string = str.encode(string_input,'utf-8')
+        block_bytes = base64.b64decode(base64string) 
+        self.set_block_list(block_bytes, block_size)
+        
+
     def set_block_list(self, bytes_input, block_size):
-        print(bytes_input)
-        print(type(bytes_input))
         self.block_list = list()
         temp = bytes_input
         # padding with 0 at the end
@@ -26,12 +30,12 @@ class BlockCipherMachine():
         for i in range(0, len(self.block_list)):
             self.cycle = i
             self.mode.operate(self, is_encryption)
-    
+
     def get_b64_encoded_string_result(self):
         result = reduce(lambda i, j: i + j, self.result_list)
         result = base64.b64encode(bytearray(result))
         return result.decode('utf-8')
-
+    
     def get_string_result(self):
         result = reduce(lambda i, j: i + j, self.result_list)
         result = bytes(result)

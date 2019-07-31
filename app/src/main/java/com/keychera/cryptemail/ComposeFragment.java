@@ -135,6 +135,7 @@ public class ComposeFragment extends Fragment {
   }
 
   private class ComposeEmailTask extends AsyncTask<ComposeBundle, ComposeStatus, SimpleEmail> {
+
     @Override
     protected SimpleEmail doInBackground(ComposeBundle... composeBundles) {
       ComposeBundle bundle = composeBundles[0];
@@ -142,7 +143,9 @@ public class ComposeFragment extends Fragment {
       if (email.isValid()) {
         if (bundle.encryptFlag) {
           publishProgress(ComposeStatus.ENCRYPTING);
-          email.message = PythonRunner.Encrypt(bundle.context, email.message, bundle.encryptKeyFilename);
+          String encrypted_message = PythonRunner.Encrypt(bundle.context, email.message, bundle.encryptKeyFilename);
+
+          email.message = SimpleEmail.ENCRYPTED_TAG_START + encrypted_message + SimpleEmail.ENCRYPTED_TAG_END;
         }
         if (bundle.signFlag) {
           publishProgress(ComposeStatus.SIGNING);

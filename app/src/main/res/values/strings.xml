@@ -34,4 +34,5 @@
   <string name="detail_title">Detail Title</string>
   <string name="detail_title_inbox">Inbox</string>
   <string name="detail_title_ready_send">Send this email?</string>
+  <string name="detail_title_temp_view">(Temporary View)</string>
 </resources>

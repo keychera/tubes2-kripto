@@ -36,8 +36,12 @@ public class EmailDetailFragment extends Fragment {
   private SimpleEmail email;
   private TextView messageText;
   private DetailType detail_type;
-
+  private View thisView;
   private Fragment thisFragment;
+  private TextView encryptionStatus;
+  private TextView signatureStatus;
+  private Button decryptButton;
+  private Button verifySignatureButton;
 
 
   public static EmailDetailFragment newInstance(SimpleEmail email, DetailType type) {
@@ -63,41 +67,31 @@ public class EmailDetailFragment extends Fragment {
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.email_detail_fragment, container, false);
-
+    thisView = view;
     TextView titleText = view.findViewById(R.id.detail_title);
     TextView fromAddressText = view.findViewById(R.id.from_address_text);
     TextView toAddressText = view.findViewById(R.id.to_address_text);
     TextView subjectText = view.findViewById(R.id.subject_text);
-    TextView encryptionStatus = view.findViewById(R.id.status_encryption);
-    TextView signatureStatus = view.findViewById(R.id.status_signature);
-    Button decryptButton = view.findViewById(R.id.button_decrypt);
-    Button verifySignatureButton = view.findViewById(R.id.button_verify_sign);
+    encryptionStatus = view.findViewById(R.id.status_encryption);
+    signatureStatus = view.findViewById(R.id.status_signature);
+    decryptButton = view.findViewById(R.id.button_decrypt);
+    verifySignatureButton = view.findViewById(R.id.button_verify_sign);
     FloatingActionButton fab = view.findViewById(R.id.send_fab);
     messageText = view.findViewById(R.id.message_text);
 
     fromAddressText.setText(email.fromAddress);
     toAddressText.setText(email.toAddress);
     subjectText.setText(email.subject);
-    if (email.isEncrypted()) {
-      encryptionStatus.setText(getString(R.string.encryption_yes));
-      decryptButton.setEnabled(true);
-    } else {
-      encryptionStatus.setText(getString(R.string.encryption_no));
-      decryptButton.setEnabled(false);
-    }
-    if (email.isEncrypted()) {
-      signatureStatus.setText(getString(R.string.signature_yes));
-      verifySignatureButton.setEnabled(true);
-    } else {
-      signatureStatus.setText(getString(R.string.signature_no));
-      verifySignatureButton.setEnabled(false);
-    }
+    UpdateUI();
 
     if (detail_type == DetailType.VIEW) {
+
       titleText.setText(R.string.detail_title_inbox);
       fab.hide();
       new GetEmailContentTask().execute(email);
+
     } else if (detail_type == DetailType.READY_SEND) {
+
       titleText.setText(R.string.detail_title_ready_send);
       Snackbar.make(view, "Message Ready", Snackbar.LENGTH_LONG)
           .setAction("Action", null).show();
@@ -110,7 +104,10 @@ public class EmailDetailFragment extends Fragment {
             new SendEmailTask().execute(email);
         }
       });
+
     } else if (detail_type == DetailType.TEMP_VIEW) {
+
+      titleText.setText(R.string.detail_title_temp_view);
       fab.setOnClickListener(new OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -118,11 +115,44 @@ public class EmailDetailFragment extends Fragment {
         }
       });
       fab.setImageResource(R.drawable.ic_cancel);
+      messageText.setText(email.message);
+      new DecryptionTask().execute(email.message);
+
     } else {
+
       messageText.setText(R.string.test_string);
       fab.hide();
+
     }
     return view;
+  }
+
+  private void UpdateUI() {
+    if (email.isEncrypted()) {
+      encryptionStatus.setText(getString(R.string.encryption_yes));
+      decryptButton.setEnabled(true);
+      decryptButton.setOnClickListener(new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+          Bundle args = new Bundle();
+          SimpleEmail decryptedEmail = new SimpleEmail(email);
+          decryptedEmail.message = email.getEncryptedMessage();
+          args.putSerializable(EmailDetailFragment.ARG_SIMPLE_EMAIL, decryptedEmail);
+          args.putSerializable(EmailDetailFragment.ARG_DETAIL_TYPE, DetailType.TEMP_VIEW);
+          NavHostFragment.findNavController(thisFragment).navigate(R.id.emailDetailFragment, args);
+        }
+      });
+    } else {
+      encryptionStatus.setText(getString(R.string.encryption_no));
+      decryptButton.setEnabled(false);
+    }
+    if (email.isSigned()) {
+      signatureStatus.setText(getString(R.string.signature_yes));
+      verifySignatureButton.setEnabled(true);
+    } else {
+      signatureStatus.setText(getString(R.string.signature_no));
+      verifySignatureButton.setEnabled(false);
+    }
   }
 
   @SuppressLint("StaticFieldLeak")
@@ -146,6 +176,7 @@ public class EmailDetailFragment extends Fragment {
       super.onProgressUpdate(values);
       for (String value:values) {
         messageText.setText(value);
+        UpdateUI();
       }
     }
   }
@@ -180,6 +211,26 @@ public class EmailDetailFragment extends Fragment {
       NavHostFragment.findNavController(thisFragment).popBackStack();
     } else {
       NavHostFragment.findNavController(thisFragment).popBackStack();
+    }
+  }
+
+  @SuppressLint("StaticFieldLeak")
+  private class DecryptionTask extends AsyncTask<String, Void, String> {
+
+    @Override
+    protected String doInBackground(String... toDecrypts) {
+      Snackbar.make(thisView, "ENCRYPTING", Snackbar.LENGTH_INDEFINITE)
+          .setAction("Action", null).show();
+      String toDecrypt = toDecrypts[0];
+      return PythonRunner.Decrypt(getContext(), toDecrypt, "key.dat");
+    }
+
+    @Override
+    protected void onPostExecute(String s) {
+      super.onPostExecute(s);
+      messageText.setText(s);
+      Snackbar.make(thisView, "Done", Snackbar.LENGTH_LONG)
+          .setAction("Action", null).show();
     }
   }
 }

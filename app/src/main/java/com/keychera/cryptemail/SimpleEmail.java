@@ -3,6 +3,7 @@ package com.keychera.cryptemail;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
@@ -13,6 +14,11 @@ import javax.mail.internet.MimeBodyPart;
 
 
 public class SimpleEmail implements Serializable {
+  public static final String ENCRYPTED_TAG_START = "==ENCRYPTED VAL START==\n";
+  public static final String ENCRYPTED_TAG_END = "\n==ENCRYPTED VAL END==";
+  private static final String SIGNATURE_TAG_START = "\n==SIGNATURE START==\n";
+  private static final String SIGNATURE_TAG_END = "\n==SIGNATURE END==\n";
+
   public String fromAddress;
   public String toAddress;
   public String subject;
@@ -25,6 +31,18 @@ public class SimpleEmail implements Serializable {
 
 
   SimpleEmail() {}
+
+  SimpleEmail(SimpleEmail email) {
+    fromAddress = email.fromAddress;
+    toAddress = email.toAddress;
+    subject = email.subject;
+    sentDate = email.sentDate;
+    receivedDate = email.receivedDate;
+    message = email.message;
+    contentType = email.contentType;
+    content = email.content;
+    attachFiles = email.attachFiles;
+  }
 
   SimpleEmail(Message message) throws MessagingException, IOException {
     subject = message.getSubject();
@@ -94,7 +112,28 @@ public class SimpleEmail implements Serializable {
   }
 
   public boolean isEncrypted() {
-    return false;
+    if (message == null) {
+      return false;
+    } else {
+      String encryptedRegex = ENCRYPTED_TAG_START + "(.*?)" + ENCRYPTED_TAG_END;
+      Pattern pat = Pattern.compile(encryptedRegex, Pattern.DOTALL);
+      Matcher matcher = pat.matcher(message);
+      return matcher.matches();
+    }
+  }
+
+  public String getEncryptedMessage() {
+    if (message == null) {
+      return null;
+    } else {
+      String encryptedRegex = ENCRYPTED_TAG_START + "(.*?)" + ENCRYPTED_TAG_END;
+      Pattern pat = Pattern.compile(encryptedRegex, Pattern.DOTALL);
+      Matcher matcher = pat.matcher(message);
+      if (matcher.find()) {
+        return matcher.group(1);
+      }
+      return null;
+    }
   }
 
   public boolean isSigned() {

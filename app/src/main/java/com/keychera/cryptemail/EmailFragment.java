@@ -154,8 +154,8 @@ public class EmailFragment extends Fragment implements OnRefreshListener {
     @Override
     protected Void doInBackground(Void... voids) {
       Store store;
-      String user = Config.EMAIL;
-      String pass = Config.PASSWORD;
+      String user = Config.getInstance().email;
+      String pass = Config.getInstance().password;
       try {
         Properties props = System.getProperties();
         props.setProperty("mail.store.protocol", "imaps");

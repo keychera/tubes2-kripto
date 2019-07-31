@@ -30,6 +30,7 @@ public class HelloFragment extends Fragment {
   private OnFragmentInteractionListener mListener;
   private Fragment thisFragment;
   private View thisView;
+  private TextView textEmail;
 
   public HelloFragment() {
     // Required empty public constructor
@@ -62,8 +63,8 @@ public class HelloFragment extends Fragment {
       }
     });
 
-    TextView textEmail = view.findViewById(R.id.text_email);
-    textEmail.setText(Config.EMAIL);
+    textEmail = view.findViewById(R.id.text_email);
+    textEmail.setText(Config.getInstance().email);
 
     Button loginButton = view.findViewById(R.id.button_login);
     loginButton.setOnClickListener(new OnClickListener() {
@@ -71,8 +72,11 @@ public class HelloFragment extends Fragment {
       public void onClick(View view) {
         EditText emailText = view.getRootView().findViewById(R.id.input_email);
         EditText passText = view.getRootView().findViewById(R.id.input_password);
-        Config.EMAIL = emailText.getText().toString();
-        Config.PASSWORD = passText.getText().toString();
+        Config.getInstance().email = emailText.getText().toString();
+        Config.getInstance().password = passText.getText().toString();
+        textEmail.setText(Config.getInstance().email);
+        emailText.setText(null);
+        passText.setText(null);
       }
     });
 

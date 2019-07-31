@@ -40,7 +40,7 @@ public class EmailUtil {
     Authenticator auth = new Authenticator() {
       //override the getPasswordAuthentication method
       protected PasswordAuthentication getPasswordAuthentication() {
-        return new PasswordAuthentication(Config.EMAIL, Config.PASSWORD);
+        return new PasswordAuthentication(Config.getInstance().email, Config.getInstance().password);
       }
     };
 
@@ -51,7 +51,7 @@ public class EmailUtil {
     msg.addHeader("format", "flowed");
     msg.addHeader("Content-Transfer-Encoding", "8bit");
 
-    msg.setFrom(new InternetAddress(Config.EMAIL));
+    msg.setFrom(new InternetAddress(Config.getInstance().email));
 
     msg.setReplyTo(InternetAddress.parse(email.toAddress, false));
 

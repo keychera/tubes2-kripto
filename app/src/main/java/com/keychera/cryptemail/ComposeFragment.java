@@ -169,7 +169,7 @@ public class ComposeFragment extends Fragment implements PropertyListener {
 
   public SimpleEmail getEmailContent() {
     SimpleEmail email = new SimpleEmail();
-    email.fromAddress = Config.EMAIL;
+    email.fromAddress = Config.getInstance().email;
     email.toAddress = toAddressText.getText().toString();
     email.subject = subjectText.getText().toString();
     email.bodyText = messageText.getText().toString();

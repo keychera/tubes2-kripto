@@ -12,7 +12,6 @@
     android:layout_height="wrap_content"
     android:layout_margin="32dp"
     android:contentDescription="@string/desc_email_icon"
-    android:tint="@color/transparent_black"
     app:srcCompat="@android:drawable/ic_dialog_email"/>
   <LinearLayout
     android:layout_width="fill_parent"

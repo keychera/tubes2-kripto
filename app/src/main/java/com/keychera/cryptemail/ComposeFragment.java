@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
@@ -21,6 +22,9 @@ import com.chaquo.python.android.AndroidPlatform;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.keychera.cryptemail.EmailDetailFragment.DetailType;
+import com.keychera.cryptemail.PropertiesSingleton.PropertyListener;
+import com.nbsp.materialfilepicker.MaterialFilePicker;
+import java.util.regex.Pattern;
 
 
 /**
@@ -28,11 +32,12 @@ import com.keychera.cryptemail.EmailDetailFragment.DetailType;
  * {@link OnComposeFragmentInteractionListener} interface to handle interaction events. Use
  * the {@link ComposeFragment#newInstance} factory method to create an instance of this fragment.
  */
-public class ComposeFragment extends Fragment {
+public class ComposeFragment extends Fragment implements PropertyListener {
 
   private OnComposeFragmentInteractionListener mListener;
   private EditText toAddressText, subjectText, messageText;
-  private CheckBox encryptCheckBox, signCheckBox;
+  private TextView encryptFile, signFile, textToChange;
+  private CheckBox encryptCheckBox, signCheckBox, checkBoxToChange;
   private ComposeFragment thisFragment;
   private View thisView;
 
@@ -68,6 +73,36 @@ public class ComposeFragment extends Fragment {
     messageText = thisView.findViewById(R.id.message_text);
     encryptCheckBox = thisView.findViewById(R.id.checkbox_encrypt);
     signCheckBox = thisView.findViewById(R.id.checkbox_sign);
+    encryptFile = thisView.findViewById(R.id.status_encryption);
+    signFile = thisView.findViewById(R.id.status_signature);
+
+    encryptCheckBox.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        checkBoxToChange = (CheckBox) view;
+        textToChange = encryptFile;
+        if (checkBoxToChange.isChecked()) {
+          PropertiesSingleton.getInstance().subscribe(thisFragment);
+          FileHelper.CallFilePicker(getActivity(),1, null);
+        } else {
+          textToChange.setText(null);
+        }
+      }
+    });
+
+    signCheckBox.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        checkBoxToChange = (CheckBox) view;
+        textToChange = signFile;
+        if (checkBoxToChange.isChecked()) {
+          PropertiesSingleton.getInstance().subscribe(thisFragment);
+          FileHelper.CallFilePicker(getActivity(),1, null);
+        } else {
+          textToChange.setText(null);
+        }
+      }
+    });
 
     //set FAB
     FloatingActionButton fab = thisView.findViewById(R.id.send_fab);
@@ -78,6 +113,10 @@ public class ComposeFragment extends Fragment {
         composeBundle.emailToCompose = getEmailContent();
         composeBundle.encryptFlag = encryptCheckBox.isChecked();
         composeBundle.signFlag = signCheckBox.isChecked();
+        TextView encryptFile = view.getRootView().findViewById(R.id.status_encryption);
+        composeBundle.encryptKeyFilename = encryptFile.getText().toString();
+        TextView signFile = view.getRootView().findViewById(R.id.status_signature);
+        composeBundle.signPrivKeyFilename = signFile.getText().toString();
         new ComposeEmailTask().execute(composeBundle);
       }
     });
@@ -85,6 +124,18 @@ public class ComposeFragment extends Fragment {
     return thisView;
   }
 
+  @Override
+  public void OnPropertyChanged() {
+    String filename = PropertiesSingleton.getInstance().sharedString;
+    if (filename != null) {
+      textToChange.setText(filename);
+    } else {
+      checkBoxToChange.setChecked(false);
+    }
+
+    PropertiesSingleton.getInstance().sharedString = null;
+    PropertiesSingleton.getInstance().unsubscribe(thisFragment);
+  }
 
   @Override
   public void onAttach(Context context) {
@@ -129,7 +180,7 @@ public class ComposeFragment extends Fragment {
       this.context = context;
       encryptFlag = false;
       signFlag = false;
-      encryptKeyFilename = "key.dat";
+      encryptKeyFilename = null;
       signPrivKeyFilename = null;
     }
   }

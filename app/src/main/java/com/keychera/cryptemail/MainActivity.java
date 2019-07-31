@@ -1,5 +1,6 @@
 package com.keychera.cryptemail;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.lifecycle.ViewModelProviders;
@@ -21,6 +22,7 @@ import com.keychera.cryptemail.ComposeFragment.OnComposeFragmentInteractionListe
 import com.keychera.cryptemail.EmailDetailFragment.DetailType;
 import com.keychera.cryptemail.EmailFragment.onEmailListFragmentInteraction;
 import com.keychera.cryptemail.HelloFragment.OnFragmentInteractionListener;
+import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
 public class MainActivity extends AppCompatActivity
     implements OnNavigationItemSelectedListener, onEmailListFragmentInteraction,
@@ -115,5 +117,30 @@ public class MainActivity extends AppCompatActivity
   @Override
   public void onFragmentInteraction(Uri uri) {
 
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+
+    if (requestCode == 1) {
+      if (resultCode == RESULT_OK) {
+        PropertiesSingleton.getInstance().sharedString = data
+            .getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+        PropertiesSingleton.getInstance().notifyListener();
+      } else {
+        PropertiesSingleton.getInstance().sharedString = null;
+        PropertiesSingleton.getInstance().notifyListener();
+      }
+    } else if (requestCode == 2) {
+      if (resultCode == RESULT_OK) {
+        PropertiesSingleton.getInstance().sharedString = data
+            .getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+        PropertiesSingleton.getInstance().notifyListener();
+      } else {
+        PropertiesSingleton.getInstance().sharedString = null;
+        PropertiesSingleton.getInstance().notifyListener();
+      }
+    }
   }
 }

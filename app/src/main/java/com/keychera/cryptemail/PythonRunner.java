@@ -34,29 +34,37 @@ class PythonRunner {
     return res.toString();
   }
 
-  static String Decrypt(Context context, String message, String decryptFileName) {
-    if (!Python.isStarted()) {
-      Python.start(new AndroidPlatform(context));
+  static class DecryptionFailException extends Exception {
+
+  }
+
+  static String Decrypt(Context context, String message, String decryptFileName) throws DecryptionFailException {
+    try {
+      if (!Python.isStarted()) {
+        Python.start(new AndroidPlatform(context));
+      }
+      Python os = Python.getInstance();
+      PyObject builtins = os.getBuiltins();
+      PyObject bcmachine_module = os.getModule("BlockCipher.BlockCipherMachine");
+      PyObject bcmode_module = os.getModule("BlockCipher.BlockCipherModes");
+      PyObject bccryptor_module = os.getModule("BlockCipher.BlockCipherCryptor");
+      PyObject py_str = builtins.get("str");
+
+      String key = FileHelper.ReadFile(decryptFileName, context);
+      PyObject ECB_mode = bcmode_module.callAttr("ECBMode");
+      PyObject key_bytes = py_str.callAttr("encode", key);
+      PyObject cryptor = bccryptor_module.callAttr("Cipher", key_bytes);
+      PyObject bcmachine = bcmachine_module.callAttr("BlockCipherMachine", ECB_mode, cryptor);
+
+      bcmachine.callAttr("set_block_list_from_encrypted_string", message, 8);
+      bcmachine.callAttr("run", false);
+
+      PyObject res = bcmachine.callAttr("get_string_result");
+
+      return res.toString();
+    } catch (Exception e){
+      e.printStackTrace();
+      throw new DecryptionFailException();
     }
-    Python os = Python.getInstance();
-    PyObject builtins = os.getBuiltins();
-    PyObject bcmachine_module = os.getModule("BlockCipher.BlockCipherMachine");
-    PyObject bcmode_module = os.getModule("BlockCipher.BlockCipherModes");
-    PyObject bccryptor_module = os.getModule("BlockCipher.BlockCipherCryptor");
-    PyObject py_str = builtins.get("str");
-
-    String key = FileHelper.ReadFile(decryptFileName, context);
-    PyObject ECB_mode = bcmode_module.callAttr("ECBMode");
-    PyObject key_bytes = py_str.callAttr("encode",key);
-    PyObject cryptor = bccryptor_module.callAttr("Cipher",key_bytes);
-    PyObject bcmachine = bcmachine_module.callAttr("BlockCipherMachine", ECB_mode, cryptor);
-
-
-    bcmachine.callAttr("set_block_list_from_encrypted_string", message, 8);
-    bcmachine.callAttr("run", false);
-
-    PyObject res = bcmachine.callAttr("get_string_result");
-
-    return res.toString();
   }
 }

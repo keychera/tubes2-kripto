@@ -207,8 +207,10 @@ public class ComposeFragment extends Fragment implements PropertyListener {
           String encrypted_message = PythonRunner.Encrypt(bundle.context, email.bodyText, bundle.encryptKeyFilename);
           stringBuilder
               .append(SimpleEmail.ENCRYPTED_TAG_START)
+              .append("\n")
               .append(encrypted_message)
-              .append(SimpleEmail.ENCRYPTED_TAG_END);
+              .append(SimpleEmail.ENCRYPTED_TAG_END)
+              .append("\n");
           email.bodyText = encrypted_message;
         } else {
           stringBuilder.append(email.bodyText);
@@ -220,7 +222,9 @@ public class ComposeFragment extends Fragment implements PropertyListener {
           String hashToSign = SHA.SHA1(email.bodyText);
           SimpleSignedData signedData = signer.signData(hashToSign.getBytes(), encodedPv);
           stringBuilder
+              .append("\n")
               .append(SimpleEmail.SIGNATURE_TAG_START)
+              .append("\n")
               .append(signedData.getSignatureString())
               .append(SimpleEmail.SIGNATURE_TAG_END);
         }

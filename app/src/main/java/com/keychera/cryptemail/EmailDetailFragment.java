@@ -18,6 +18,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.keychera.cryptemail.PropertiesSingleton.PropertyListener;
+import com.keychera.cryptemail.PythonRunner.DecryptionFailException;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -250,6 +251,7 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
       super.onProgressUpdate(values);
       for (String value:values) {
         messageText.setText(value);
+        email.bodyText = value;
         UpdateUI();
       }
     }
@@ -295,19 +297,29 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
 
     @Override
     protected String doInBackground(String... args) {
-      Snackbar.make(thisView, "ENCRYPTING", Snackbar.LENGTH_INDEFINITE)
+      Snackbar.make(thisView, "DECRYPTING", Snackbar.LENGTH_INDEFINITE)
           .setAction("Action", null).show();
       String toDecrypt = args[0];
       String fileName = args[1];
-      return PythonRunner.Decrypt(getContext(), toDecrypt, fileName);
+      try {
+        return PythonRunner.Decrypt(getContext(), toDecrypt, fileName);
+      } catch (DecryptionFailException e) {
+        e.printStackTrace();
+        return null;
+      }
     }
 
     @Override
     protected void onPostExecute(String s) {
       super.onPostExecute(s);
-      messageText.setText(s);
-      Snackbar.make(thisView, "Done", Snackbar.LENGTH_LONG)
-          .setAction("Action", null).show();
+      if (s != null) {
+        messageText.setText(s);
+        Snackbar.make(thisView, "Done", Snackbar.LENGTH_LONG)
+            .setAction("Action", null).show();
+      } else {
+        Snackbar.make(thisView, "Decryption Failed!", Snackbar.LENGTH_LONG)
+            .setAction("Action", null).show();
+      }
     }
   }
 

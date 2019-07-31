@@ -19,13 +19,15 @@ import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.internet.ContentType;
 import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMultipart;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.internal.StringUtil;
 
 
 public class SimpleEmail implements Serializable {
-  public static final String ENCRYPTED_TAG_START = "==ENCRYPTED VAL START==\n";
-  public static final String ENCRYPTED_TAG_END = "\n==ENCRYPTED VAL END==\n";
-  public static final String SIGNATURE_TAG_START = "\n==SIGNATURE START==\n";
+  public static final String ENCRYPTED_TAG_START = "==ENCRYPTED VAL START==";
+  public static final String ENCRYPTED_TAG_END = "==ENCRYPTED VAL END==";
+  public static final String SIGNATURE_TAG_START = "==SIGNATURE START==";
   public static final String SIGNATURE_TAG_END = "==SIGNATURE END==";
 
 
@@ -36,8 +38,8 @@ public class SimpleEmail implements Serializable {
   public Date receivedDate;
   public String bodyText;
   public String attachFiles;
-
-  private Message message;
+  Object content;
+  String contentType;
 
 
   SimpleEmail() {}
@@ -50,7 +52,8 @@ public class SimpleEmail implements Serializable {
     receivedDate = email.receivedDate;
     bodyText = email.bodyText;
     attachFiles = email.attachFiles;
-    message = email.message;
+    content = email.content;
+    contentType = email.contentType;
   }
 
   SimpleEmail(Message message) throws MessagingException, IOException {
@@ -59,7 +62,8 @@ public class SimpleEmail implements Serializable {
     toAddress = message.getRecipients(RecipientType.TO)[0].toString();
     sentDate = message.getSentDate();
     receivedDate = message.getReceivedDate();
-    this.message = message;
+    content = message.getContent();
+    contentType = message.getContentType();
     getMessageContent();
   }
 
@@ -82,14 +86,20 @@ public class SimpleEmail implements Serializable {
 
   public void getMessageContent() throws IOException, MessagingException {
     EmailUtil emailUtil = new EmailUtil();
-    bodyText = emailUtil.getTextFromMessage(message);
+    String result = "No Message";
+    if (contentType.toLowerCase().contains("text/plain") || contentType.toLowerCase().contains("text/html")) {
+      result = content.toString();
+    } else if (contentType.toLowerCase().contains("multipart")) {
+      MimeMultipart mimeMultipart = (MimeMultipart) content;
+      result = EmailUtil.getTextFromMimeMultipart(mimeMultipart);
+    }
+    bodyText = result;
   }
 
   public List<File> getAttachment() throws MessagingException, IOException {
-    String contentType = message.getContentType();
     if (contentType.contains("multipart")) {
       List<File> attachments = new ArrayList<>();
-      Multipart multipart = (Multipart) message.getContent();
+      Multipart multipart = (Multipart) content;
       for (int i = 0; i < multipart.getCount(); i++) {
         BodyPart bodyPart = multipart.getBodyPart(i);
         InputStream is = bodyPart.getInputStream();
@@ -117,7 +127,11 @@ public class SimpleEmail implements Serializable {
 
   public String getEncryptedMessage() {
     if (bodyText != null) {
-      return StringUtils.substringBetween(bodyText, ENCRYPTED_TAG_START, ENCRYPTED_TAG_END);
+      String plain = StringUtils.substringBetween(bodyText, ENCRYPTED_TAG_START, ENCRYPTED_TAG_END);
+      if (plain != null)
+        return plain.replace("\n","");
+      else
+        return null;
     } else {
       return null;
     }
@@ -125,7 +139,11 @@ public class SimpleEmail implements Serializable {
 
   public String getSignature() {
     if (bodyText != null) {
-      return StringUtils.substringBetween(bodyText, SIGNATURE_TAG_START, SIGNATURE_TAG_END);
+      String plain = StringUtils.substringBetween(bodyText, SIGNATURE_TAG_START, SIGNATURE_TAG_END);
+      if (plain != null)
+        return plain.replace("\n","");
+      else
+        return null;
     } else {
       return null;
     }
@@ -135,6 +153,7 @@ public class SimpleEmail implements Serializable {
     String signedData= getEncryptedMessage();
     if (signedData == null) {
       signedData = StringUtils.substringBefore(bodyText, SIGNATURE_TAG_START);
+
     }
     return signedData;
   }

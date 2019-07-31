@@ -58,7 +58,7 @@ public class EmailUtil {
     msg.setSubject(email.subject, "UTF-8");
     msg.setSentDate(new Date());
 
-    if (email.attachFiles == null) {
+    if (email.attachFiles == null || email.attachFiles.isEmpty()) {
       msg.setText(email.bodyText, "UTF-8");
     } else {
       Multipart multipart = new MimeMultipart();
@@ -83,7 +83,7 @@ public class EmailUtil {
     System.out.println("Email Sent Successfully!!");
   }
 
-  public String getTextFromMessage(Message message) throws IOException, MessagingException {
+  public static String getTextFromMessage(Message message) throws IOException, MessagingException {
     String result = "";
     if (message.isMimeType("text/plain")) {
       result = message.getContent().toString();
@@ -94,7 +94,7 @@ public class EmailUtil {
     return result;
   }
 
-  public String getTextFromMimeMultipart(
+  public static String getTextFromMimeMultipart(
       MimeMultipart mimeMultipart) throws IOException, MessagingException {
 
     int count = mimeMultipart.getCount();
@@ -113,7 +113,7 @@ public class EmailUtil {
     return result;
   }
 
-  public String getTextFromBodyPart(
+  public static String getTextFromBodyPart(
       BodyPart bodyPart) throws IOException, MessagingException {
 
     String result = "";

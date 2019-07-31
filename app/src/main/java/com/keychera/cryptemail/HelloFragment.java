@@ -1,6 +1,5 @@
 package com.keychera.cryptemail;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -9,11 +8,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import java.io.IOException;
+import java.security.KeyPair;
+import java.security.PrivateKey;
 
 
 /**
@@ -24,6 +29,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 public class HelloFragment extends Fragment {
   private OnFragmentInteractionListener mListener;
   private Fragment thisFragment;
+  private View thisView;
 
   public HelloFragment() {
     // Required empty public constructor
@@ -46,6 +52,7 @@ public class HelloFragment extends Fragment {
 
     thisFragment = this;
     View view = inflater.inflate(R.layout.fragment_hello, container, false);
+    thisView = view;
     //set FAB
     FloatingActionButton fab = view.findViewById(R.id.compose_fab);
     fab.setOnClickListener(new OnClickListener() {
@@ -57,6 +64,27 @@ public class HelloFragment extends Fragment {
 
     TextView textEmail = view.findViewById(R.id.text_email);
     textEmail.setText(Config.EMAIL);
+
+    Button loginButton = view.findViewById(R.id.button_login);
+    loginButton.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        EditText emailText = view.getRootView().findViewById(R.id.input_email);
+        EditText passText = view.getRootView().findViewById(R.id.input_password);
+        Config.EMAIL = emailText.getText().toString();
+        Config.PASSWORD = passText.getText().toString();
+      }
+    });
+
+    Button generateKeyPairButton = view.findViewById(R.id.button_key_generate);
+    generateKeyPairButton.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        TextView textKeyName = view.getRootView().findViewById(R.id.key_name);
+        String keyname = textKeyName.getText().toString();
+        new GenerateKeyPairTask().execute(keyname);
+      }
+    });
 
     return view;
   }
@@ -88,5 +116,36 @@ public class HelloFragment extends Fragment {
    */
   public interface OnFragmentInteractionListener {
     void onFragmentInteraction(Uri uri);
+  }
+
+  private class GenerateKeyPairTask extends AsyncTask<String, Void, Boolean> {
+
+    @Override
+    protected Boolean doInBackground(String... keynames) {
+      Snackbar.make(thisView, "GENERATING KEYPAIR", Snackbar.LENGTH_SHORT)
+          .setAction("Action", null).show();
+      ECDSA generator = new ECDSA();
+      String keyname = keynames[0];
+      try {
+        generator.saveKeyPair(keyname);
+      } catch (IOException e) {
+        e.printStackTrace();
+        return false;
+      }
+      return true;
+    }
+
+    @Override
+    protected void onPostExecute(Boolean isSuccesful) {
+      super.onPostExecute(isSuccesful);
+      if(isSuccesful) {
+        Snackbar.make(thisView, "Success! keypair saved to " + FileHelper.path, Snackbar.LENGTH_SHORT)
+            .setAction("Action", null).show();
+      } else {
+        Snackbar.make(thisView, "Failed!", Snackbar.LENGTH_SHORT)
+            .setAction("Action", null).show();
+      }
+
+    }
   }
 }

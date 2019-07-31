@@ -18,6 +18,7 @@ import java.security.Signature;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
+import org.apache.commons.io.IOUtils;
 import org.spongycastle.jce.ECNamedCurveTable;
 import org.spongycastle.jce.spec.ECParameterSpec;
 
@@ -37,8 +38,20 @@ public class ECDSA {
     }
   }
 
-  public KeyPair getKeyPair(String identifier) {
-    return gen.generateKeyPair();
+  public void saveKeyPair(String filename) throws IOException {
+    KeyPair pair = gen.generateKeyPair();
+
+    FileOutputStream output;
+
+    PrivateKey privateKey = pair.getPrivate();
+    byte[] encodedPv = privateKey.getEncoded();
+    output = new FileOutputStream(new File(FileHelper.path + "private-" + filename + ".key"));
+    IOUtils.write(encodedPv, output);
+
+    PublicKey publicKey = pair.getPublic();
+    byte[] encodedPb = publicKey.getEncoded();
+    output = new FileOutputStream(new File(FileHelper.path + "public-" + filename + ".key"));
+    IOUtils.write(encodedPb, output);
   }
 
   public SimpleSignedData signData(byte[] dataToSign,  byte[] encodedPv) {

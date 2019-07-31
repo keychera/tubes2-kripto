@@ -38,4 +38,11 @@
   <string name="button_attachement">Download</string>
   <string name="button_attach">Attach</string>
   <string name="status_attachment">No Attachment</string>
+  <string name="button_login">Set Account</string>
+  <string name="title_account">Account</string>
+  <string name="status_email_name">email name</string>
+  <string name="hint_ecdsa_keyname">keypair name </string>
+  <string name="button_generate_keypair">Generate KeyPair</string>
+  <string name="hint_email">email</string>
+  <string name="hint_password">password</string>
 </resources>

@@ -6,10 +6,8 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   tools:context=".HelloFragment">
 
-  <!-- TODO: Update blank fragment layout -->
-
   <LinearLayout
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical">
@@ -19,14 +17,67 @@
       android:layout_height="wrap_content"
       android:layout_gravity="center"
       android:gravity="center"
-      android:text="Account"/>
+      android:text="@string/title_account"/>
     <TextView
       android:id="@+id/text_email"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="center"
       android:gravity="center"
-      android:hint="email name"/>
+      android:hint="@string/status_email_name"/>
+    <TableLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_margin="@dimen/text_margin">
+
+      <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_margin="@dimen/text_box_margin">
+        <EditText
+          android:id="@+id/input_email"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_weight="0.5"
+          android:ems="10"
+          android:hint="@string/hint_email"
+          android:inputType="textEmailAddress"/>
+        <EditText
+          android:id="@+id/input_password"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_weight="0.5"
+          android:ems="10"
+          android:hint="@string/hint_password"
+          android:inputType="textPassword"/>
+      </TableRow>
+      <Button
+        android:id="@+id/button_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="48dp"
+        android:text="@string/button_login"/>
+      <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_margin="@dimen/text_box_margin">
+        <EditText
+          android:id="@+id/key_name"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_weight="0.5"
+          android:hint="@string/hint_ecdsa_keyname"
+          android:inputType="textPersonName"/>
+        <Button
+          android:id="@+id/button_key_generate"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_weight="0.5"
+          android:text="@string/button_generate_keypair"/>
+      </TableRow>
+    </TableLayout>
   </LinearLayout>
   <com.google.android.material.floatingactionbutton.FloatingActionButton
     android:id="@+id/compose_fab"

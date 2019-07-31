@@ -192,16 +192,27 @@ public class ComposeFragment extends Fragment implements PropertyListener {
       ComposeBundle bundle = composeBundles[0];
       SimpleEmail email = bundle.emailToCompose;
       if (email.isValid()) {
+        StringBuilder stringBuilder = new StringBuilder();
         if (bundle.encryptFlag) {
           publishProgress(ComposeStatus.ENCRYPTING);
           String encrypted_message = PythonRunner.Encrypt(bundle.context, email.message, bundle.encryptKeyFilename);
-
-          email.message = SimpleEmail.ENCRYPTED_TAG_START + encrypted_message + SimpleEmail.ENCRYPTED_TAG_END;
+          stringBuilder
+              .append(SimpleEmail.ENCRYPTED_TAG_START)
+              .append(encrypted_message)
+              .append(SimpleEmail.ENCRYPTED_TAG_END);
         }
         if (bundle.signFlag) {
           publishProgress(ComposeStatus.SIGNING);
-
+          ECDSA signer = new ECDSA();
+          byte[] encodedPv = FileHelper.ReadFileBytes(bundle.signPrivKeyFilename, bundle.context);
+          String hashToSign = SHA.SHA1(email.message);
+          SimpleSignedData signedData = signer.signData(hashToSign.getBytes(), encodedPv);
+          stringBuilder
+              .append(SimpleEmail.SIGNATURE_TAG_START)
+              .append(signedData.getSignatureString())
+              .append(SimpleEmail.SIGNATURE_TAG_END);
         }
+        email.message = stringBuilder.toString();
         return email;
       } else {
         return null;

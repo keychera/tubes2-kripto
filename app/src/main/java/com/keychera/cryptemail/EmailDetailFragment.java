@@ -147,7 +147,8 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
   private void UpdateUI() {
     Activity activity = getActivity();
     if(activity != null) {
-      if (email.isEncrypted()) {
+      String encryptedMessage = email.getEncryptedMessage();
+      if (encryptedMessage != null) {
         encryptionStatus.setText(getString(R.string.encryption_yes));
         decryptButton.setEnabled(true);
         decryptButton.setOnClickListener(new OnClickListener() {
@@ -166,7 +167,8 @@ public class EmailDetailFragment extends Fragment implements PropertyListener {
         encryptionStatus.setText(getString(R.string.encryption_no));
         decryptButton.setEnabled(false);
       }
-      if (email.isSigned()) {
+      String signature = email.getSignature();
+      if (signature != null) {
         signatureStatus.setText(getString(R.string.signature_yes));
         verifySignatureButton.setEnabled(true);
       } else {

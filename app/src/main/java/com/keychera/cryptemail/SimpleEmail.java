@@ -11,13 +11,14 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.internet.MimeBodyPart;
+import org.apache.commons.lang3.StringUtils;
 
 
 public class SimpleEmail implements Serializable {
   public static final String ENCRYPTED_TAG_START = "==ENCRYPTED VAL START==\n";
-  public static final String ENCRYPTED_TAG_END = "\n==ENCRYPTED VAL END==";
-  private static final String SIGNATURE_TAG_START = "\n==SIGNATURE START==\n";
-  private static final String SIGNATURE_TAG_END = "\n==SIGNATURE END==\n";
+  public static final String ENCRYPTED_TAG_END = "\n==ENCRYPTED VAL END==\n";
+  public static final String SIGNATURE_TAG_START = "\n==SIGNATURE START==\n";
+  public static final String SIGNATURE_TAG_END = "==SIGNATURE END==";
 
   public String fromAddress;
   public String toAddress;
@@ -111,32 +112,19 @@ public class SimpleEmail implements Serializable {
 
   }
 
-  public boolean isEncrypted() {
-    if (message == null) {
-      return false;
-    } else {
-      String encryptedRegex = ENCRYPTED_TAG_START + "(.*?)" + ENCRYPTED_TAG_END;
-      Pattern pat = Pattern.compile(encryptedRegex, Pattern.DOTALL);
-      Matcher matcher = pat.matcher(message);
-      return matcher.matches();
-    }
-  }
-
   public String getEncryptedMessage() {
-    if (message == null) {
-      return null;
+    if (message != null) {
+      return StringUtils.substringBetween(message, ENCRYPTED_TAG_START, ENCRYPTED_TAG_END);
     } else {
-      String encryptedRegex = ENCRYPTED_TAG_START + "(.*?)" + ENCRYPTED_TAG_END;
-      Pattern pat = Pattern.compile(encryptedRegex, Pattern.DOTALL);
-      Matcher matcher = pat.matcher(message);
-      if (matcher.find()) {
-        return matcher.group(1);
-      }
       return null;
     }
   }
 
-  public boolean isSigned() {
-    return false;
+  public String getSignature() {
+    if (message != null) {
+      return StringUtils.substringBetween(message, SIGNATURE_TAG_START, SIGNATURE_TAG_END);
+    } else {
+      return null;
+    }
   }
 }

@@ -9,6 +9,7 @@ import android.util.Log;
 import android.widget.Toast;
 import androidx.core.content.ContextCompat;
 import com.nbsp.materialfilepicker.MaterialFilePicker;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,7 +23,7 @@ public class FileHelper {
   public final static String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/cryptemail/" ;
   private final static String TAG = FileHelper.class.getName();
 
-  public static void CallFilePicker(Activity activity, int requestCode, String ext) {
+  static void CallFilePicker(Activity activity, int requestCode, String ext) {
     MaterialFilePicker picker = new MaterialFilePicker()
         .withActivity(activity)
         .withRequestCode(requestCode)
@@ -32,6 +33,22 @@ public class FileHelper {
       picker.withFilter(Pattern.compile(".*\\." + ext + "$"));
     }
     picker.start();
+  }
+
+  static byte[] ReadFileBytes(String fileName, Context context) {
+    File file = new File(fileName);
+    int size = (int) file.length();
+    byte[] bytes = new byte[size];
+    try {
+      BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
+      buf.read(bytes, 0, bytes.length);
+      buf.close();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return bytes;
   }
 
   static  String ReadFile(String fileName, Context context){
